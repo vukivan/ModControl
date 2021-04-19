@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Windows.Forms;
 
 namespace ModControl
 {
@@ -31,16 +32,16 @@ namespace ModControl
         /// </summary>
         private void InitializeComponent()
         {
-            this.mainMenu = new System.Windows.Forms.MenuStrip();
-            this.modToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.listView = new System.Windows.Forms.ListView();
+            this.mainMenu = new MenuStrip();
+            this.modToolStripMenuItem = new ToolStripMenuItem();
+            this.openToolStripMenuItem = new ToolStripMenuItem();
+            this.exitToolStripMenuItem = new ToolStripMenuItem();
+            this.helpToolStripMenuItem = new ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new ToolStripMenuItem();
+            this.toolStripSeparator = new ToolStripSeparator();
+            this.folderBrowserDialog = new FolderBrowserDialog();
+            this.splitContainer = new SplitContainer();
+            this.listView = new ListView();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.SuspendLayout();
@@ -48,7 +49,7 @@ namespace ModControl
             // 
             // mainMenu
             // 
-            this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mainMenu.Items.AddRange(new ToolStripItem[] {
             this.modToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
@@ -59,7 +60,7 @@ namespace ModControl
             // 
             // modToolStripMenuItem
             // 
-            this.modToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.modToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.openToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.modToolStripMenuItem.Name = "modToolStripMenuItem";
@@ -70,7 +71,7 @@ namespace ModControl
             // 
             this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.O)));
             this.openToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.openToolStripMenuItem.Text = "&Open Mod Storage";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_ItemClicked);
@@ -84,7 +85,7 @@ namespace ModControl
             // 
             // helpToolStripMenuItem
             // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
@@ -106,34 +107,35 @@ namespace ModControl
             this.folderBrowserDialog.Description = "Select the directory that you want to use as the default.";
             this.folderBrowserDialog.RootFolder = System.Environment.SpecialFolder.MyDocuments;
             this.folderBrowserDialog.ShowNewFolderButton = false;
-            this.folderBrowserDialog.HelpRequest += new System.EventHandler(this.folderBrowserDialog1_HelpRequest);
+            this.folderBrowserDialog.HelpRequest += new System.EventHandler(this.FolderBrowserDialog1_HelpRequest);
             // 
             // splitContainer1
             // 
-            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer.Dock = DockStyle.Fill;
             this.splitContainer.Location = new System.Drawing.Point(0, 24);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer.Panel1.UseWaitCursor = true;
-            this.splitContainer.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer1_Panel1_Paint);
+            this.splitContainer.Panel1.Paint += new PaintEventHandler(this.SplitContainer1_Panel1_Paint);
             this.splitContainer.Panel1.Controls.Add(listView);
             this.splitContainer.Size = new System.Drawing.Size(800, 426);
             this.splitContainer.SplitterDistance = 266;
             this.splitContainer.TabIndex = 1;
             // This ListView control is in the top panel of splitContainer2.
-            this.listView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView.Dock = DockStyle.Fill;
             this.listView.Location = new System.Drawing.Point(0, 0);
             this.listView.Name = "listView";
             this.listView.Size = new System.Drawing.Size(207, 125);
-            this.listView.View = System.Windows.Forms.View.List;
-            this.listView.Columns.Add("Name", -2, System.Windows.Forms.HorizontalAlignment.Left);
+            this.listView.View = View.Details;
+            this.listView.Columns.Add("Name", -2, HorizontalAlignment.Left);
+            this.listView.Scrollable = true;
+            this.listView.CheckBoxes = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.mainMenu);
@@ -151,17 +153,17 @@ namespace ModControl
 
         #endregion
 
-        private System.Windows.Forms.MenuStrip mainMenu;
-        private System.Windows.Forms.ToolStripMenuItem modToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+        private MenuStrip mainMenu;
+        private ToolStripMenuItem modToolStripMenuItem;
+        private ToolStripMenuItem openToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator;
+        private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem aboutToolStripMenuItem;
+        private FolderBrowserDialog folderBrowserDialog;
         private String modStorageFolderName;
-        private System.Windows.Forms.SplitContainer splitContainer;
-        private System.Windows.Forms.ListView listView;
+        private SplitContainer splitContainer;
+        private ListView listView;
     }
 }
 
