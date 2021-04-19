@@ -38,9 +38,12 @@ namespace ModControl
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.listView = new System.Windows.Forms.ListView();
             this.mainMenu.SuspendLayout();
-
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+            this.splitContainer.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainMenu
@@ -100,21 +103,47 @@ namespace ModControl
             // 
             // folderBrowserDialog1
             // 
-            this.folderBrowserDialog1.Description = "Select the directory that you want to use as the default.";
-            this.folderBrowserDialog1.RootFolder = System.Environment.SpecialFolder.MyDocuments;
-            this.folderBrowserDialog1.ShowNewFolderButton = false;
+            this.folderBrowserDialog.Description = "Select the directory that you want to use as the default.";
+            this.folderBrowserDialog.RootFolder = System.Environment.SpecialFolder.MyDocuments;
+            this.folderBrowserDialog.ShowNewFolderButton = false;
+            this.folderBrowserDialog.HelpRequest += new System.EventHandler(this.folderBrowserDialog1_HelpRequest);
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer.Location = new System.Drawing.Point(0, 24);
+            this.splitContainer.Name = "splitContainer";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer.Panel1.UseWaitCursor = true;
+            this.splitContainer.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer1_Panel1_Paint);
+            this.splitContainer.Panel1.Controls.Add(listView);
+            this.splitContainer.Size = new System.Drawing.Size(800, 426);
+            this.splitContainer.SplitterDistance = 266;
+            this.splitContainer.TabIndex = 1;
+            // This ListView control is in the top panel of splitContainer2.
+            this.listView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView.Location = new System.Drawing.Point(0, 0);
+            this.listView.Name = "listView";
+            this.listView.Size = new System.Drawing.Size(207, 125);
+            this.listView.View = System.Windows.Forms.View.List;
+            this.listView.Columns.Add("Name", -2, System.Windows.Forms.HorizontalAlignment.Left);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.mainMenu);
             this.MainMenuStrip = this.mainMenu;
             this.Name = "MainForm";
             this.Text = "ModControl";
             this.mainMenu.ResumeLayout(false);
             this.mainMenu.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+            this.splitContainer.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -129,8 +158,10 @@ namespace ModControl
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private String modStorageFolderName;
+        private System.Windows.Forms.SplitContainer splitContainer;
+        private System.Windows.Forms.ListView listView;
     }
 }
 
