@@ -37,9 +37,10 @@ namespace ModControl
         private static void PopulateListView(ListView listView, String modStorageDirectory)
         {
             DirectoryInfo dinfo = new DirectoryInfo(modStorageDirectory);
-            FileInfo[] Files = dinfo.GetFiles("*.zip");
-            foreach (FileInfo file in Files)
+            FileInfo [] ModFiles = dinfo.GetFiles("*.zip");
+            foreach (FileInfo file in ModFiles)
             {
+                ModsList.AddLast(new Mod(file.Name));
                 listView.Items.Add(file.Name);
             }
         }

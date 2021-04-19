@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace ModControl
@@ -161,7 +162,7 @@ namespace ModControl
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
         private FolderBrowserDialog folderBrowserDialog;
-        private String modStorageFolderName;
+        private static LinkedList<Mod> ModsList = new LinkedList<Mod>();
         private SplitContainer splitContainer;
         private ListView listView;
     }
