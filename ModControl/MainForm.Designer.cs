@@ -118,7 +118,7 @@ namespace ModControl
             this.splitContainer.Location = new System.Drawing.Point(0, 24);
             this.splitContainer.Name = "splitContainer";
             this.splitContainer.Orientation = Orientation.Vertical;
-            this.splitContainer.SplitterDistance = 75;
+            this.splitContainer.SplitterDistance = 80;
             // splitContainer1.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(listView);
@@ -131,8 +131,10 @@ namespace ModControl
             this.listView.Columns.Add("Name", 400, HorizontalAlignment.Left);
             this.listView.Columns.Add("Author", 300, HorizontalAlignment.Left);
             this.listView.Columns.Add("Version", 50, HorizontalAlignment.Left);
+            this.listView.Columns.Add("Status", 75, HorizontalAlignment.Left);
             this.listView.Scrollable = true;
             this.listView.CheckBoxes = true;
+            this.listView.FullRowSelect = true;
             this.listView.AllowColumnReorder = true;
             // Connect the ListView.ColumnClick event to the ColumnClick event handler.
             this.listView.ColumnClick += new ColumnClickEventHandler(ColumnClick);

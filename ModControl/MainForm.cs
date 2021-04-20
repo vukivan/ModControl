@@ -43,7 +43,7 @@ namespace ModControl
             {
                 Mod mod = new Mod(modStorageDirectory, file.Name);
                 ModsList.AddLast(mod);
-                ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion() });
+                ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString()});
                 listView.Items.Add(item);
             }
         }
@@ -91,6 +91,11 @@ namespace ModControl
 
         private void txt_Search_KeyDown(object sender, KeyEventArgs e)
         {
+            //TODO: refactor this so that it actually filters
+            //Save list somewhere else, not in this method
+            //restore backup to view
+            //delete everything that doesn't mach criteria.
+            //if search empty, just restore backup
             if (listView.Items.Count>0 && e.KeyCode == Keys.Return)
             {
                 // Call FindItemWithText with the contents of the textbox.
@@ -108,5 +113,15 @@ namespace ModControl
         {
 
         }
+    }
+
+    enum ModStatus
+    {
+        Unknown = -1,
+        Inactive, //Exists in mod storage => Activate - Copy to mod directory.
+        Active, //Exists in both mod storage, and mod directory. Same version in both. => Deactivate - remove from mod directory
+        New, //Exists only in mod directory, can be backed up. => Backup - copy to mod storage.
+        Update, //Version in mod storage is newer => Copy to mod directory, confirm overwrite
+        Backup //Version in mod directory is newer => Backup - ccopy to mod storage, confirm overwrite
     }
 }
