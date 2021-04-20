@@ -43,7 +43,7 @@ namespace ModControl
             {
                 Mod mod = new Mod(modStorageDirectory, file.Name);
                 ModsList.AddLast(mod);
-                ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModVersion(), mod.GetModAuthor()});
+                ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion() });
                 listView.Items.Add(item);
             }
         }
@@ -54,30 +54,54 @@ namespace ModControl
             // Set the ListViewItemSorter property to a new ListViewItemComparer 
             // object. Setting this property immediately sorts the 
             // ListView using the ListViewItemComparer object.
-            this.listView.ListViewItemSorter = new ListViewItemComparer(e.Column);
+            if (this.listView.Sorting.Equals(SortOrder.Ascending))
+            {
+                this.listView.ListViewItemSorter = new ListViewItemComparer(e.Column, SortOrder.Descending);
+                this.listView.Sorting = SortOrder.Descending;
+            }
+            else
+            {
+                this.listView.ListViewItemSorter = new ListViewItemComparer(e.Column, SortOrder.Ascending);
+                this.listView.Sorting = SortOrder.Ascending;
+            }
         }
 
         // Implements the manual sorting of items by columns.
         class ListViewItemComparer : IComparer
         {
             private int col;
+            private SortOrder order;
             public ListViewItemComparer()
             {
                 col = 0;
             }
-            public ListViewItemComparer(int column)
+            public ListViewItemComparer(int column, SortOrder order)
             {
                 col = column;
+                this.order = order;
             }
             public int Compare(object x, object y)
             {
-                return String.Compare(((ListViewItem)x).SubItems[col].Text, ((ListViewItem)y).SubItems[col].Text);
+                if (order.Equals(SortOrder.Ascending))
+                    return String.Compare(((ListViewItem)x).SubItems[col].Text, ((ListViewItem)y).SubItems[col].Text);
+                else
+                    return (-1)*String.Compare(((ListViewItem)x).SubItems[col].Text, ((ListViewItem)y).SubItems[col].Text);
             }
         }
 
-        private void SplitContainer1_Panel1_Paint(object sender, PaintEventArgs e)
+        private void txt_Search_KeyDown(object sender, KeyEventArgs e)
         {
-
+            if (listView.Items.Count>0 && e.KeyCode == Keys.Return)
+            {
+                // Call FindItemWithText with the contents of the textbox.
+                ListViewItem foundItem =
+                    listView.FindItemWithText(searchBox.Text, false, 0, true);
+                if (foundItem != null)
+                {
+                    listView.TopItem = foundItem;
+                }
+            }
+            
         }
 
         private void FolderBrowserDialog1_HelpRequest(object sender, EventArgs e)

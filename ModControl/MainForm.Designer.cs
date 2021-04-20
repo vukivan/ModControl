@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace ModControl
@@ -42,6 +43,7 @@ namespace ModControl
             this.toolStripSeparator = new ToolStripSeparator();
             this.folderBrowserDialog = new FolderBrowserDialog();
             this.splitContainer = new SplitContainer();
+            this.searchBox = new TextBox();
             this.listView = new ListView();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
@@ -55,7 +57,7 @@ namespace ModControl
             this.helpToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
-            this.mainMenu.Size = new System.Drawing.Size(800, 24);
+            this.mainMenu.Size = new System.Drawing.Size(800, 48);
             this.mainMenu.TabIndex = 0;
             this.mainMenu.Text = "menuStrip1";
             // 
@@ -115,28 +117,32 @@ namespace ModControl
             this.splitContainer.Dock = DockStyle.Fill;
             this.splitContainer.Location = new System.Drawing.Point(0, 24);
             this.splitContainer.Name = "splitContainer";
-            // 
+            this.splitContainer.Orientation = Orientation.Vertical;
+            this.splitContainer.SplitterDistance = 75;
             // splitContainer1.Panel1
             // 
-            this.splitContainer.Panel1.Paint += new PaintEventHandler(this.SplitContainer1_Panel1_Paint);
             this.splitContainer.Panel1.Controls.Add(listView);
-            this.splitContainer.Size = new System.Drawing.Size(800, 426);
-            this.splitContainer.SplitterDistance = 600;
-            this.splitContainer.TabIndex = 1;
-            // This ListView control is in the top panel of splitContainer2.
+            this.Controls.Add(searchBox);
+            this.splitContainer.TabIndex = 0;
             this.listView.Dock = DockStyle.Fill;
             this.listView.Location = new System.Drawing.Point(0, 0);
             this.listView.Name = "listView";
-            this.listView.Size = new System.Drawing.Size(207, 125);
             this.listView.View = View.Details;
-            this.listView.Columns.Add("Name", 350, HorizontalAlignment.Left);
+            this.listView.Columns.Add("Name", 400, HorizontalAlignment.Left);
+            this.listView.Columns.Add("Author", 300, HorizontalAlignment.Left);
             this.listView.Columns.Add("Version", 50, HorizontalAlignment.Left);
-            this.listView.Columns.Add("Author", 200, HorizontalAlignment.Left);
             this.listView.Scrollable = true;
             this.listView.CheckBoxes = true;
             this.listView.AllowColumnReorder = true;
             // Connect the ListView.ColumnClick event to the ColumnClick event handler.
             this.listView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
+            //
+            // SearchBox
+            //
+            this.searchBox.Location = new Point(100, 0);
+            this.searchBox.KeyDown += new KeyEventHandler(txt_Search_KeyDown);
+            this.searchBox.Width = 300;
+            this.searchBox.PlaceholderText = "Jump to...";
             // 
             // MainForm
             // 
@@ -170,6 +176,7 @@ namespace ModControl
         private FolderBrowserDialog folderBrowserDialog;
         private static LinkedList<Mod> ModsList = new LinkedList<Mod>();
         private SplitContainer splitContainer;
+        private TextBox searchBox;
         private ListView listView;
     }
 }
