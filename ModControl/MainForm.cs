@@ -100,7 +100,7 @@ namespace ModControl
             {
                 // Call FindItemWithText with the contents of the textbox.
                 ListViewItem foundItem =
-                    listView.FindItemWithText(searchBox.Text, false, 0, true);
+                    listView.FindItemWithText(searchBox.Text, true, 0, true);
                 if (foundItem != null)
                 {
                     listView.TopItem = foundItem;
