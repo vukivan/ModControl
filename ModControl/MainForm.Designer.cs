@@ -121,7 +121,7 @@ namespace ModControl
             this.splitContainer.Panel1.Paint += new PaintEventHandler(this.SplitContainer1_Panel1_Paint);
             this.splitContainer.Panel1.Controls.Add(listView);
             this.splitContainer.Size = new System.Drawing.Size(800, 426);
-            this.splitContainer.SplitterDistance = 266;
+            this.splitContainer.SplitterDistance = 600;
             this.splitContainer.TabIndex = 1;
             // This ListView control is in the top panel of splitContainer2.
             this.listView.Dock = DockStyle.Fill;
@@ -129,15 +129,21 @@ namespace ModControl
             this.listView.Name = "listView";
             this.listView.Size = new System.Drawing.Size(207, 125);
             this.listView.View = View.Details;
-            this.listView.Columns.Add("Name", -2, HorizontalAlignment.Left);
+            this.listView.Columns.Add("Name", 350, HorizontalAlignment.Left);
+            this.listView.Columns.Add("Version", 50, HorizontalAlignment.Left);
+            this.listView.Columns.Add("Author", 200, HorizontalAlignment.Left);
             this.listView.Scrollable = true;
             this.listView.CheckBoxes = true;
+            this.listView.AllowColumnReorder = true;
+            // Connect the ListView.ColumnClick event to the ColumnClick event handler.
+            this.listView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1600, 900);
+            this.StartPosition = FormStartPosition.CenterScreen;
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.mainMenu);
             this.MainMenuStrip = this.mainMenu;
