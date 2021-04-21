@@ -45,6 +45,7 @@ namespace ModControl
             this.splitContainer = new SplitContainer();
             this.searchBox = new TextBox();
             this.listView = new ListView();
+            this.statusStrip = new StatusStrip();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.SuspendLayout();
@@ -121,6 +122,7 @@ namespace ModControl
             this.splitContainer.SplitterDistance = 80;
             // splitContainer1.Panel1
             // 
+            this.splitContainer.Panel1.Controls.Add(statusStrip);
             this.splitContainer.Panel1.Controls.Add(listView);
             this.Controls.Add(searchBox);
             this.splitContainer.TabIndex = 0;
@@ -146,6 +148,21 @@ namespace ModControl
             this.searchBox.Width = 300;
             this.searchBox.PlaceholderText = "Jump to...";
             // 
+            // statusStrip1
+            // 
+            this.statusStrip.Location = new System.Drawing.Point(0, 854);
+            this.statusStrip.Name = "statusStrip1";
+            this.statusStrip.Size = new System.Drawing.Size(853, 22);
+            this.statusStrip.TabIndex = 1;
+            this.statusStrip.Text = "statusStrip1";
+
+            // Right panel, split in two sections.
+            // Top section is "Select active mod Folder" - Moves mod folder.
+            // Buttons, first is always default. Others will open configuration form, where one selects a new active directory.
+            // If button is configured, it switches mod folder.
+            // Second section is "Activate mod list" - Selects mods in storage view.
+            // This is a scrollable list. Button copies them all.
+            // Deactivation works the same.
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -180,6 +197,7 @@ namespace ModControl
         private SplitContainer splitContainer;
         private TextBox searchBox;
         private ListView listView;
+        private StatusStrip statusStrip;
     }
 }
 

@@ -5,10 +5,12 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace ModControl
 {
@@ -38,14 +40,51 @@ namespace ModControl
         private static void PopulateListView(ListView listView, String modStorageDirectory)
         {
             DirectoryInfo dinfo = new DirectoryInfo(modStorageDirectory);
-            FileInfo [] ModFiles = dinfo.GetFiles("*.zip");
+            FileInfo[] ModFiles = dinfo.GetFiles("*.zip");
             foreach (FileInfo file in ModFiles)
             {
-                Mod mod = new Mod(modStorageDirectory, file.Name);
+                Mod mod = new Mod(GetModInfo(modStorageDirectory, file.Name));
                 ModsList.AddLast(mod);
                 ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString()});
                 listView.Items.Add(item);
             }
+        }
+
+        private static ModProperties GetModInfo(string ModStorageDirectory, string FileName)
+        {
+            string title = null;
+            string author = null;
+            string version = null;
+            string icon = null;
+            XDocument modDescXml;
+            //Open Zip, get info.
+            using ZipArchive archive = ZipFile.Open(ModStorageDirectory + "/" + FileName, ZipArchiveMode.Read);
+            ZipArchiveEntry entry = archive.GetEntry("modDesc.xml");
+            if (entry != null)
+            {
+                //System.Diagnostics.Debug.WriteLine("Loading mod:" + FileName);
+                using (StreamReader reader = new StreamReader(entry.Open()))
+                    modDescXml = XDocument.Load(reader);
+                author = modDescXml.Element("modDesc").Element("author").Value.Trim();
+                XElement titleXElement = modDescXml.Element("modDesc").Element("title").Element("en");
+                if (titleXElement != null)
+                {
+                    title = titleXElement.Value.Trim();
+                }
+                else
+                {
+                    title = modDescXml.Element("modDesc").Element("title").Value.Trim();
+                }
+                icon = modDescXml.Element("modDesc").Element("iconFilename").Value.Trim();
+                version = modDescXml.Element("modDesc").Element("version").Value.Trim();
+
+            }
+            else
+            {
+                // Report Error with Filename and reason "modDesc.xml" not found.
+            }
+
+            return new ModProperties(FileName, title, author, version, icon);
         }
 
         // ColumnClick event handler.
