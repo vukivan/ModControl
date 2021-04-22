@@ -86,6 +86,32 @@ namespace ModControl
             
         }
 
+
+        private void DeactivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            ListView.CheckedListViewItemCollection checkedMods = listView.CheckedItems;
+            ListView.SelectedListViewItemCollection selectedMods = listView.SelectedItems;
+            if (checkedMods.Count > 0)
+            {
+                foreach (ListViewItem checkedItem in checkedMods)
+                {
+                    DeactivateMod(checkedItem);
+                }
+            }
+            else if (selectedMods.Count > 0)
+            {
+                foreach (ListViewItem selectedItem in selectedMods)
+                {
+                    DeactivateMod(selectedItem);
+                }
+            }
+            else
+            {
+                MessageBox.Show("No items selected!");
+            }
+
+        }
+
         private Mod FindModByFileName(string name, LinkedList<Mod> list)
         {
             foreach(Mod mod in list)
@@ -101,12 +127,36 @@ namespace ModControl
         private void ActivateMod (ListViewItem item)
         {
             Mod mod = FindModByFileName(item.SubItems[4].Text, ModsStorageList);
-            File.Copy(Path.Combine(modStorageDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, mod.GetFileName()), false);
-            mod.SetModStatus(ModStatus.Active);
-            item.SubItems[3].Text = mod.GetModStatusString();
+            if (mod != null)
+            {
+                File.Copy(Path.Combine(modStorageDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, mod.GetFileName()), false);
+                mod.SetModStatus(ModStatus.Active);
+                item.SubItems[3].Text = mod.GetModStatusString();
+            }
         }
 
-        private static void PopulateListView(ListView listView, string modStorageDirectory)
+        private void DeactivateMod(ListViewItem item)
+        {
+            Mod modKeep = FindModByFileName(item.SubItems[4].Text, ModsStorageList);
+            Mod modRemove = FindModByFileName(item.SubItems[4].Text, ActiveModsList);
+            // MAKE SURE IT'S THE SAME VERSION
+            if (modKeep != null && modRemove != null && modKeep.GetModVersion().Equals(modRemove.GetModVersion()))
+            {
+                var removeFile = new FileInfo(Path.Combine(defaultModDirectory, modRemove.GetFileName()));
+                var keepFile = new FileInfo(Path.Combine(defaultModDirectory, modRemove.GetFileName()));
+                if (removeFile.Length.Equals(keepFile.Length)) {
+                    File.Delete(Path.Combine(defaultModDirectory, modRemove.GetFileName()));
+                    modKeep.SetModStatus(ModStatus.Inactive);
+                    item.SubItems[3].Text = modKeep.GetModStatusString();
+                }
+                else
+                {
+                    MessageBox.Show(removeFile.FullName + " and " + keepFile.FullName + "have a different size!\nBackup or update mod files instead!");
+                }
+            }
+        }
+
+        private void PopulateListView(ListView listView, string modStorageDirectory)
         {
             FileInfo[] modFiles = GetModFiles(modStorageDirectory);
             /*
@@ -169,7 +219,7 @@ namespace ModControl
             }
         }
 
-        private static void LoadActiveMods()
+        private void LoadActiveMods()
         {
             //Get mods from default mod directory - TODO: chaange later to selectable, or last selected
             FileInfo[] modFiles = GetModFiles(defaultModDirectory);
@@ -178,10 +228,11 @@ namespace ModControl
                 Mod mod = new Mod(GetModInfo(defaultModDirectory, file.Name));
                 mod.SetModStatus(ModStatus.Active);
                 ActiveModsList.AddLast(mod);
+                this.deactivateToolStripMenuItem.Enabled = true;
             }
         }
 
-        private static void AddModToListView(Mod mod, ListView listView)
+        private void AddModToListView(Mod mod, ListView listView)
         {
             ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
             item.ToolTipText = mod.GetFileName();

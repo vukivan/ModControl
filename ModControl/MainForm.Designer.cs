@@ -17,6 +17,7 @@ namespace ModControl
         private ToolStripMenuItem modToolStripMenuItem;
         private ToolStripMenuItem openToolStripMenuItem;
         private ToolStripMenuItem activateToolStripMenuItem;
+        private ToolStripMenuItem deactivateToolStripMenuItem;
         private ToolStripMenuItem reloadToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator;
         private ToolStripMenuItem exitToolStripMenuItem;
@@ -55,6 +56,7 @@ namespace ModControl
             this.modToolStripMenuItem = new ToolStripMenuItem();
             this.openToolStripMenuItem = new ToolStripMenuItem();
             this.activateToolStripMenuItem = new ToolStripMenuItem();
+            this.deactivateToolStripMenuItem = new ToolStripMenuItem();
             this.reloadToolStripMenuItem = new ToolStripMenuItem();
             this.exitToolStripMenuItem = new ToolStripMenuItem();
             this.helpToolStripMenuItem = new ToolStripMenuItem();
@@ -89,6 +91,7 @@ namespace ModControl
             this.modToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.openToolStripMenuItem,
             this.activateToolStripMenuItem,
+            this.deactivateToolStripMenuItem,
             this.reloadToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.modToolStripMenuItem.Name = "modToolStripMenuItem";
@@ -113,6 +116,16 @@ namespace ModControl
             this.activateToolStripMenuItem.Text = "&Activate Selected";
             this.activateToolStripMenuItem.Click += new System.EventHandler(this.ActivateToolStripMenuItem_ItemClicked);
             this.activateToolStripMenuItem.Enabled = false;
+            // 
+            // deactivateToolStripMenuItem
+            // 
+            this.deactivateToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.deactivateToolStripMenuItem.Name = "deactivateToolStripMenuItem";
+            this.deactivateToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.D)));
+            this.deactivateToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.deactivateToolStripMenuItem.Text = "&Deactivate Selected";
+            this.deactivateToolStripMenuItem.Click += new System.EventHandler(this.DeactivateToolStripMenuItem_ItemClicked);
+            this.deactivateToolStripMenuItem.Enabled = false;
             // 
             // reloadToolStripMenuItem
             // 
