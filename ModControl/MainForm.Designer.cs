@@ -24,11 +24,11 @@ namespace ModControl
         private static LinkedList<Mod> ModsStorageList = new LinkedList<Mod>();
         private static LinkedList<Mod> ActiveModsList = new LinkedList<Mod>();
         private SplitContainer splitContainer;
+        private SplitContainer rightSplitContainer;
         private TextBox searchBox;
         private ListView listView;
         private StatusStrip statusStrip;
         private string modStorageDirectory = null;
-        private string defaultModDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -60,12 +60,15 @@ namespace ModControl
             this.toolStripSeparator = new ToolStripSeparator();
             this.folderBrowserDialog = new FolderBrowserDialog();
             this.splitContainer = new SplitContainer();
+            this.rightSplitContainer = new SplitContainer();
             this.searchBox = new TextBox();
             this.listView = new ListView();
             this.statusStrip = new StatusStrip();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.rightSplitContainer)).BeginInit();
+            this.rightSplitContainer.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainMenu
@@ -130,14 +133,22 @@ namespace ModControl
             this.folderBrowserDialog.ShowNewFolderButton = false;
             this.folderBrowserDialog.HelpRequest += new System.EventHandler(this.FolderBrowserDialog1_HelpRequest);
             // 
-            // splitContainer1
+            // mainSplitContainer
             // 
             this.splitContainer.Dock = DockStyle.Fill;
             this.splitContainer.Location = new System.Drawing.Point(0, 24);
-            this.splitContainer.Name = "splitContainer";
+            this.splitContainer.Name = "mainSplitContainer";
             this.splitContainer.Orientation = Orientation.Vertical;
             this.splitContainer.SplitterDistance = 80;
-            // splitContainer1.Panel1
+            // 
+            // rightSplitContainer
+            // 
+            this.rightSplitContainer.Dock = DockStyle.Fill;
+            this.rightSplitContainer.Location = new System.Drawing.Point(0, 24);
+            this.rightSplitContainer.Name = "rightSplitContainer";
+            this.rightSplitContainer.Orientation = Orientation.Horizontal;
+            this.rightSplitContainer.TabIndex = 1;
+            // mainSplitContainer.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(statusStrip);
             this.splitContainer.Panel1.Controls.Add(listView);
@@ -158,6 +169,8 @@ namespace ModControl
             // Connect the ListView.ColumnClick event to the ColumnClick event handler.
             this.listView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
             this.listView.ShowItemToolTips = true;
+
+            this.splitContainer.Panel2.Controls.Add(rightSplitContainer);
             //
             // SearchBox
             //
@@ -196,18 +209,10 @@ namespace ModControl
             this.mainMenu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.rightSplitContainer)).EndInit();
+            this.rightSplitContainer.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
-
-            //Get mods from default mod directory - TODO: chaange later to selectable, or last selected
-            FileInfo[] modFiles = GetModFiles(defaultModDirectory);
-            foreach (FileInfo file in modFiles)
-            {
-                Mod mod = new Mod(GetModInfo(defaultModDirectory, file.Name));
-                mod.SetModStatus(ModStatus.Active);
-                ActiveModsList.AddLast(mod);
-            }
-
         }
         #endregion
     }

@@ -16,8 +16,10 @@ namespace ModControl
 {
     public partial class MainForm : Form
     {
+        private static readonly string defaultModDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
         public MainForm()
         {
+            LoadActiveMods();
             InitializeComponent();
         }
 
@@ -91,6 +93,18 @@ namespace ModControl
                     activeMod.SetModStatus(ModStatus.New);
                     AddModToListView(activeMod, listView);
                 }
+            }
+        }
+
+        private static void LoadActiveMods()
+        {
+            //Get mods from default mod directory - TODO: chaange later to selectable, or last selected
+            FileInfo[] modFiles = GetModFiles(defaultModDirectory);
+            foreach (FileInfo file in modFiles)
+            {
+                Mod mod = new Mod(GetModInfo(defaultModDirectory, file.Name));
+                mod.SetModStatus(ModStatus.Active);
+                ActiveModsList.AddLast(mod);
             }
         }
 
