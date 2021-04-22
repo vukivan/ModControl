@@ -33,24 +33,81 @@ namespace ModControl
             DialogResult result = folderBrowserDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                PopulateListView(this.listView, folderBrowserDialog.SelectedPath);
+                //also load mods from active mod directory
+                modStorageDirectory = folderBrowserDialog.SelectedPath;
+                PopulateListView(this.listView, modStorageDirectory);
             }
         }
 
-        private static void PopulateListView(ListView listView, String modStorageDirectory)
+        private static void PopulateListView(ListView listView, string modStorageDirectory)
         {
-            DirectoryInfo dinfo = new DirectoryInfo(modStorageDirectory);
-            FileInfo[] ModFiles = dinfo.GetFiles("*.zip");
-            foreach (FileInfo file in ModFiles)
+            FileInfo[] modFiles = GetModFiles(modStorageDirectory);
+            /*
+             * Go through list of imported mods.
+             * For each mod, find if it exists in active mods list.
+             * If it does, stop looping.
+             * Else it will remain Inactive.
+             * 
+             * In the end feed them all to listView.
+             */
+            foreach (FileInfo file in modFiles)
             {
                 Mod mod = new Mod(GetModInfo(modStorageDirectory, file.Name));
-                ModsList.AddLast(mod);
-                ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString()});
-                listView.Items.Add(item);
+                if (ActiveModsList.Count>0)
+                {
+                    foreach (Mod activeMod in ActiveModsList)
+                    {
+                        if (activeMod.GetFileName().Equals(mod.GetFileName()))
+                        {
+                            mod.SetModStatus(ModStatus.Active);
+                            break;
+                        }
+                    }
+                }
+                ModsStorageList.AddLast(mod);
+                AddModToListView(mod, listView);
+            }
+            /*
+             * Go through list of active mods.
+             * See if it exists in modstorage mods.
+             * If it does exist, all is well. If it does not, then it can/should/maybe? be backedup to mod storage.
+             * This covers the case where active mod directory is used as download.
+             * Set mod status to new, and feed that too to listView. Just. That. Mod.
+             */
+            foreach (Mod activeMod in ActiveModsList)
+            {
+                var modFound = false;
+                foreach(Mod storedMod in ModsStorageList)
+                {
+
+                    if (storedMod.GetFileName().Equals(activeMod.GetFileName()))
+                    {
+                        modFound = true;
+                        break;
+                    }
+                }
+                if(!modFound)
+                {
+                    activeMod.SetModStatus(ModStatus.New);
+                    AddModToListView(activeMod, listView);
+                }
             }
         }
 
-        private static ModProperties GetModInfo(string ModStorageDirectory, string FileName)
+        private static void AddModToListView(Mod mod, ListView listView)
+        {
+            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString() });
+            item.ToolTipText = mod.GetFileName();
+            listView.Items.Add(item);
+        }
+
+        private static FileInfo[] GetModFiles(string modDirectory)
+        {
+            DirectoryInfo dinfo = new DirectoryInfo(modDirectory);
+            return dinfo.GetFiles("*.zip"); ;
+        }
+
+        private static ModProperties GetModInfo(string modDirectory, string fileName)
         {
             string title = null;
             string author = null;
@@ -58,7 +115,7 @@ namespace ModControl
             string icon = null;
             XDocument modDescXml;
             //Open Zip, get info.
-            using ZipArchive archive = ZipFile.Open(ModStorageDirectory + "/" + FileName, ZipArchiveMode.Read);
+            using ZipArchive archive = ZipFile.Open(modDirectory + "/" + fileName, ZipArchiveMode.Read);
             ZipArchiveEntry entry = archive.GetEntry("modDesc.xml");
             if (entry != null)
             {
@@ -84,7 +141,7 @@ namespace ModControl
                 // Report Error with Filename and reason "modDesc.xml" not found.
             }
 
-            return new ModProperties(FileName, title, author, version, icon);
+            return new ModProperties(fileName, title, author, version, icon);
         }
 
         // ColumnClick event handler.
@@ -108,27 +165,27 @@ namespace ModControl
         // Implements the manual sorting of items by columns.
         class ListViewItemComparer : IComparer
         {
-            private int col;
+            private int column;
             private SortOrder order;
             public ListViewItemComparer()
             {
-                col = 0;
+                this.column = 0;
             }
             public ListViewItemComparer(int column, SortOrder order)
             {
-                col = column;
+                this.column = column;
                 this.order = order;
             }
             public int Compare(object x, object y)
             {
                 if (order.Equals(SortOrder.Ascending))
-                    return String.Compare(((ListViewItem)x).SubItems[col].Text, ((ListViewItem)y).SubItems[col].Text);
+                    return String.Compare(((ListViewItem)x).SubItems[this.column].Text, ((ListViewItem)y).SubItems[this.column].Text);
                 else
-                    return (-1)*String.Compare(((ListViewItem)x).SubItems[col].Text, ((ListViewItem)y).SubItems[col].Text);
+                    return (-1)*String.Compare(((ListViewItem)x).SubItems[this.column].Text, ((ListViewItem)y).SubItems[this.column].Text);
             }
         }
 
-        private void txt_Search_KeyDown(object sender, KeyEventArgs e)
+        private void Txt_Search_KeyDown(object sender, KeyEventArgs e)
         {
             //TODO: refactor this so that it actually filters
             //Save list somewhere else, not in this method
@@ -158,9 +215,9 @@ namespace ModControl
     {
         Unknown = -1,
         Inactive, //Exists in mod storage => Activate - Copy to mod directory.
-        Active, //Exists in both mod storage, and mod directory. Same version in both. => Deactivate - remove from mod directory
-        New, //Exists only in mod directory, can be backed up. => Backup - copy to mod storage.
+        Active, //Exists in both mod storage, and active mod directory. Same version in both. => Deactivate - remove from mod directory
+        New, //Exists only in active mod directory, can be backed up. => Backup - copy to mod storage.
         Update, //Version in mod storage is newer => Copy to mod directory, confirm overwrite
-        Backup //Version in mod directory is newer => Backup - ccopy to mod storage, confirm overwrite
+        Backup //Version in active mod directory is newer => Backup - ccopy to mod storage, confirm overwrite
     }
 }

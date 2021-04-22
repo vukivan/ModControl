@@ -2,36 +2,41 @@
 {
     internal class Mod
     {
-        private readonly string FileName;
-        private readonly string ModTitle;
-        private readonly string ModAuthor;
-        private readonly string ModIcon;
-        private readonly string ModVersion;
-        private string Status;
+        private readonly string fileName;
+        private readonly string modTitle;
+        private readonly string modAuthor;
+        private readonly string modIcon;
+        private readonly string modVersion;
+        private static string Status;
 
         public string GetFileName()
         {
-            return this.FileName;
+            return this.fileName;
         }
 
         public string GetModTitle ()
         {
-            return this.ModTitle;
+            return this.modTitle;
         }
 
         public string GetModAuthor()
         {
-            return this.ModAuthor;
+            return this.modAuthor;
         }
 
         public string GetModVersion()
         {
-            return this.ModVersion;
+            return this.modVersion;
+        }
+
+        public string GetModIcon()
+        {
+            return this.modIcon;
         }
 
         public ModStatus GetModStatus()
         {
-            return this.Status switch
+            return Status switch
             {
                 "Inactive" => ModStatus.Inactive,
                 "Active" => ModStatus.Active,
@@ -44,13 +49,13 @@
 
         public string GetModStatusString()
         {
-            return this.Status;
+            return Status;
             
         }
 
         public void SetModStatus(ModStatus status)
         {
-            this.Status = status switch
+            Status = status switch
             {
                 ModStatus.Inactive => "Inactive",
                 ModStatus.Active => "Active",
@@ -63,11 +68,11 @@
 
         public Mod(ModProperties Properties)
         {
-            this.FileName = Properties.filename;
-            this.ModTitle = Properties.title;
-            this.ModAuthor = Properties.author;
-            this.ModVersion = Properties.version;
-            this.ModIcon = Properties.icon;
+            this.fileName = Properties.filename;
+            this.modTitle = Properties.title;
+            this.modAuthor = Properties.author;
+            this.modVersion = Properties.version;
+            this.modIcon = Properties.icon;
             this.SetModStatus(ModStatus.Inactive);
         }
         

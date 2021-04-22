@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace ModControl
@@ -12,6 +13,22 @@ namespace ModControl
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+        private MenuStrip mainMenu;
+        private ToolStripMenuItem modToolStripMenuItem;
+        private ToolStripMenuItem openToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator;
+        private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem aboutToolStripMenuItem;
+        private FolderBrowserDialog folderBrowserDialog;
+        private static LinkedList<Mod> ModsStorageList = new LinkedList<Mod>();
+        private static LinkedList<Mod> ActiveModsList = new LinkedList<Mod>();
+        private SplitContainer splitContainer;
+        private TextBox searchBox;
+        private ListView listView;
+        private StatusStrip statusStrip;
+        private string modStorageDirectory = null;
+        private string defaultModDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -140,11 +157,12 @@ namespace ModControl
             this.listView.AllowColumnReorder = true;
             // Connect the ListView.ColumnClick event to the ColumnClick event handler.
             this.listView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
+            this.listView.ShowItemToolTips = true;
             //
             // SearchBox
             //
             this.searchBox.Location = new Point(100, 0);
-            this.searchBox.KeyDown += new KeyEventHandler(txt_Search_KeyDown);
+            this.searchBox.KeyDown += new KeyEventHandler(Txt_Search_KeyDown);
             this.searchBox.Width = 300;
             this.searchBox.PlaceholderText = "Jump to...";
             // 
@@ -181,23 +199,17 @@ namespace ModControl
             this.ResumeLayout(false);
             this.PerformLayout();
 
+            //Get mods from default mod directory - TODO: chaange later to selectable, or last selected
+            FileInfo[] modFiles = GetModFiles(defaultModDirectory);
+            foreach (FileInfo file in modFiles)
+            {
+                Mod mod = new Mod(GetModInfo(defaultModDirectory, file.Name));
+                mod.SetModStatus(ModStatus.Active);
+                ActiveModsList.AddLast(mod);
+            }
+
         }
-
         #endregion
-
-        private MenuStrip mainMenu;
-        private ToolStripMenuItem modToolStripMenuItem;
-        private ToolStripMenuItem openToolStripMenuItem;
-        private ToolStripSeparator toolStripSeparator;
-        private ToolStripMenuItem exitToolStripMenuItem;
-        private ToolStripMenuItem helpToolStripMenuItem;
-        private ToolStripMenuItem aboutToolStripMenuItem;
-        private FolderBrowserDialog folderBrowserDialog;
-        private static LinkedList<Mod> ModsList = new LinkedList<Mod>();
-        private SplitContainer splitContainer;
-        private TextBox searchBox;
-        private ListView listView;
-        private StatusStrip statusStrip;
     }
 }
 
