@@ -16,6 +16,8 @@ namespace ModControl
         private MenuStrip mainMenu;
         private ToolStripMenuItem modToolStripMenuItem;
         private ToolStripMenuItem openToolStripMenuItem;
+        private ToolStripMenuItem activateToolStripMenuItem;
+        private ToolStripMenuItem reloadToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator;
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
@@ -52,6 +54,8 @@ namespace ModControl
             this.mainMenu = new MenuStrip();
             this.modToolStripMenuItem = new ToolStripMenuItem();
             this.openToolStripMenuItem = new ToolStripMenuItem();
+            this.activateToolStripMenuItem = new ToolStripMenuItem();
+            this.reloadToolStripMenuItem = new ToolStripMenuItem();
             this.exitToolStripMenuItem = new ToolStripMenuItem();
             this.helpToolStripMenuItem = new ToolStripMenuItem();
             this.aboutToolStripMenuItem = new ToolStripMenuItem();
@@ -84,6 +88,8 @@ namespace ModControl
             // 
             this.modToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.openToolStripMenuItem,
+            this.activateToolStripMenuItem,
+            this.reloadToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.modToolStripMenuItem.Name = "modToolStripMenuItem";
             this.modToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
@@ -97,6 +103,26 @@ namespace ModControl
             this.openToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.openToolStripMenuItem.Text = "&Open Mod Storage";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_ItemClicked);
+            // 
+            // activateToolStripMenuItem
+            // 
+            this.activateToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.activateToolStripMenuItem.Name = "activateToolStripMenuItem";
+            this.activateToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.A)));
+            this.activateToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.activateToolStripMenuItem.Text = "&Activate Selected";
+            this.activateToolStripMenuItem.Click += new System.EventHandler(this.ActivateToolStripMenuItem_ItemClicked);
+            this.activateToolStripMenuItem.Enabled = false;
+            // 
+            // reloadToolStripMenuItem
+            // 
+            this.reloadToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.reloadToolStripMenuItem.Name = "reloadToolStripMenuItem";
+            this.reloadToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.R)));
+            this.reloadToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.reloadToolStripMenuItem.Text = "&Reload";
+            this.reloadToolStripMenuItem.Click += new System.EventHandler(this.ReloadToolStripMenuItem_ItemClicked);
+            this.reloadToolStripMenuItem.Enabled = false;
             // 
             // exitToolStripMenuItem
             // 

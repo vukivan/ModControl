@@ -21,7 +21,6 @@ namespace ModControl
         private static LinkedList<Mod> ActiveModsList = new LinkedList<Mod>();
         public MainForm()
         {
-            LoadActiveMods();
             InitializeComponent();
         }
 
@@ -37,10 +36,74 @@ namespace ModControl
             DialogResult result = folderBrowserDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                //also load mods from active mod directory
                 modStorageDirectory = folderBrowserDialog.SelectedPath;
-                PopulateListView(this.listView, modStorageDirectory);
+                ReloadMods();
+                this.reloadToolStripMenuItem.Enabled = true;
+                this.activateToolStripMenuItem.Enabled = true;
             }
+        }
+
+        private void ReloadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            if (modStorageDirectory.Length > 0)
+            {
+                modStorageDirectory = folderBrowserDialog.SelectedPath;
+                ReloadMods();
+            }
+        }
+
+        private void ReloadMods()
+        {
+            this.listView.Items.Clear();
+            ActiveModsList.Clear();
+            ModsStorageList.Clear();
+            LoadActiveMods();
+            PopulateListView(this.listView, modStorageDirectory);
+        }
+
+        private void ActivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            ListView.CheckedListViewItemCollection checkedMods = listView.CheckedItems;
+            ListView.SelectedListViewItemCollection selectedMods = listView.SelectedItems;
+            if (checkedMods.Count > 0)
+            {
+                foreach (ListViewItem checkedItem in checkedMods)
+                {
+                    ActivateMod(checkedItem);
+                }
+            }
+            else if (selectedMods.Count > 0)
+            {
+                foreach (ListViewItem selectedItem in selectedMods)
+                {
+                    ActivateMod(selectedItem);
+                }
+            }
+            else
+            {
+                MessageBox.Show("No items selected!");
+            }
+            
+        }
+
+        private Mod FindModByFileName(string name, LinkedList<Mod> list)
+        {
+            foreach(Mod mod in list)
+            {
+                if (mod.GetFileName().Equals(name))
+                {
+                    return mod;
+                }
+            }
+            return null;
+        }
+
+        private void ActivateMod (ListViewItem item)
+        {
+            Mod mod = FindModByFileName(item.SubItems[4].Text, ModsStorageList);
+            File.Copy(Path.Combine(modStorageDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, mod.GetFileName()), false);
+            mod.SetModStatus(ModStatus.Active);
+            item.SubItems[3].Text = mod.GetModStatusString();
         }
 
         private static void PopulateListView(ListView listView, string modStorageDirectory)
@@ -120,7 +183,7 @@ namespace ModControl
 
         private static void AddModToListView(Mod mod, ListView listView)
         {
-            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString() });
+            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
             item.ToolTipText = mod.GetFileName();
             listView.Items.Add(item);
         }

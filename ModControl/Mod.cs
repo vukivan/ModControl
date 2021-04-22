@@ -1,4 +1,6 @@
-﻿namespace ModControl
+﻿using System.Windows.Forms;
+
+namespace ModControl
 {
     internal class Mod
     {
