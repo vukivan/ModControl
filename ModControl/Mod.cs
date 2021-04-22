@@ -7,7 +7,7 @@
         private readonly string modAuthor;
         private readonly string modIcon;
         private readonly string modVersion;
-        private static string Status;
+        private volatile string Status;
 
         public string GetFileName()
         {

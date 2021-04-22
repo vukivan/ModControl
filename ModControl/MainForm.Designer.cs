@@ -21,8 +21,6 @@ namespace ModControl
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
         private FolderBrowserDialog folderBrowserDialog;
-        private static LinkedList<Mod> ModsStorageList = new LinkedList<Mod>();
-        private static LinkedList<Mod> ActiveModsList = new LinkedList<Mod>();
         private SplitContainer splitContainer;
         private SplitContainer rightSplitContainer;
         private TextBox searchBox;

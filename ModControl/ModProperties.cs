@@ -1,12 +1,12 @@
 ﻿namespace ModControl
 {
-    internal class ModProperties
+    internal struct ModProperties
     {
-        public readonly string author = null;
-        public readonly string title = null;
-        public readonly string version = null;
-        public readonly string icon = null;
-        public readonly string filename = null;
+        public string author;
+        public string title;
+        public string version;
+        public string icon;
+        public string filename;
 
         public ModProperties(string filename, string title, string author, string version, string icon)
         {

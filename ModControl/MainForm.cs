@@ -17,6 +17,8 @@ namespace ModControl
     public partial class MainForm : Form
     {
         private static readonly string defaultModDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
+        private static LinkedList<Mod> ModsStorageList = new LinkedList<Mod>();
+        private static LinkedList<Mod> ActiveModsList = new LinkedList<Mod>();
         public MainForm()
         {
             LoadActiveMods();
@@ -47,27 +49,35 @@ namespace ModControl
             /*
              * Go through list of imported mods.
              * For each mod, find if it exists in active mods list.
-             * If it does, stop looping.
+             * If it does, check version. If version is the same mark it as active.
+             * If version is not the same, mark the storage with update status.
              * Else it will remain Inactive.
              * 
              * In the end feed them all to listView.
              */
             foreach (FileInfo file in modFiles)
             {
-                Mod mod = new Mod(GetModInfo(modStorageDirectory, file.Name));
+                Mod storedMod = new Mod(GetModInfo(modStorageDirectory, file.Name));
                 if (ActiveModsList.Count>0)
                 {
                     foreach (Mod activeMod in ActiveModsList)
                     {
-                        if (activeMod.GetFileName().Equals(mod.GetFileName()))
+                        if (activeMod.GetFileName().Equals(storedMod.GetFileName()))
                         {
-                            mod.SetModStatus(ModStatus.Active);
+                            if (activeMod.GetModVersion().Equals(storedMod.GetModVersion())) {
+                                storedMod.SetModStatus(ModStatus.Active);
+                            }
+                            else
+                            {
+                                storedMod.SetModStatus(ModStatus.Update);
+                                AddModToListView(activeMod, listView);
+                            }
                             break;
                         }
                     }
                 }
-                ModsStorageList.AddLast(mod);
-                AddModToListView(mod, listView);
+                ModsStorageList.AddLast(storedMod);
+                AddModToListView(storedMod, listView);
             }
             /*
              * Go through list of active mods.
@@ -231,7 +241,7 @@ namespace ModControl
         Inactive, //Exists in mod storage => Activate - Copy to mod directory.
         Active, //Exists in both mod storage, and active mod directory. Same version in both. => Deactivate - remove from mod directory
         New, //Exists only in active mod directory, can be backed up. => Backup - copy to mod storage.
-        Update, //Version in mod storage is newer => Copy to mod directory, confirm overwrite
-        Backup //Version in active mod directory is newer => Backup - ccopy to mod storage, confirm overwrite
+        Update, //Versions are different, load both!
+        Backup //not used
     }
 }
