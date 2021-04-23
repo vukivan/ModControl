@@ -1,6 +1,6 @@
 ﻿namespace ModControl
 {
-    internal struct ModProperties
+    internal class ModProperties
     {
         public string author;
         public string title;

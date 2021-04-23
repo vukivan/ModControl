@@ -4,12 +4,12 @@ namespace ModControl
 {
     internal class Mod
     {
-        private readonly string fileName;
+        private string fileName;
         private readonly string modTitle;
         private readonly string modAuthor;
         private readonly string modIcon;
         private readonly string modVersion;
-        private volatile string Status;
+        private string Status;
 
         public string GetFileName()
         {
@@ -66,6 +66,11 @@ namespace ModControl
                 ModStatus.Update => "Update",
                 _ => "Unknown",
             };
+        }
+
+        public void SetModFileName(string name)
+        {
+            this.fileName = name;
         }
 
         public Mod(ModProperties Properties)

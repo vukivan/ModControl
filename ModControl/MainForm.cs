@@ -17,8 +17,7 @@ namespace ModControl
     public partial class MainForm : Form
     {
         private static readonly string defaultModDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
-        private static LinkedList<Mod> ModsStorageList = new LinkedList<Mod>();
-        private static LinkedList<Mod> ActiveModsList = new LinkedList<Mod>();
+        private static LinkedList<Mod> modsList = new LinkedList<Mod>();
         public MainForm()
         {
             InitializeComponent();
@@ -30,53 +29,88 @@ namespace ModControl
             Environment.Exit(0);
         }
 
-        private void OpenToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        private void LoadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            // Show the FolderBrowserDialog.
-            DialogResult result = folderBrowserDialog.ShowDialog();
-            if (result == DialogResult.OK)
+            if (Directory.Exists(defaultModDirectory))
             {
-                modStorageDirectory = folderBrowserDialog.SelectedPath;
-                ReloadMods();
-                this.reloadToolStripMenuItem.Enabled = true;
-                this.activateToolStripMenuItem.Enabled = true;
+                LoadMods();
+                if (modsList.Count > 0)
+                {
+                    this.reloadToolStripMenuItem.Enabled = true;
+                    this.activateToolStripMenuItem.Enabled = true;
+                    this.deactivateToolStripMenuItem.Enabled = true;
+                }
             }
+            else
+            {
+                Directory.CreateDirectory(defaultModDirectory);
+                MessageBox.Show("Mods directory does not exist, ModControl will create it.");
+                this.reloadToolStripMenuItem.Enabled = true;
+            }
+
         }
 
         private void ReloadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            if (modStorageDirectory.Length > 0)
-            {
-                modStorageDirectory = folderBrowserDialog.SelectedPath;
-                ReloadMods();
-            }
+            LoadMods();
+        }
+        private void SelectAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            listView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = true);
         }
 
-        private void ReloadMods()
+        private void DeselectAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            listView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = false);
+        }
+
+        private void LoadMods()
         {
             this.listView.Items.Clear();
-            ActiveModsList.Clear();
-            ModsStorageList.Clear();
-            LoadActiveMods();
-            PopulateListView(this.listView, modStorageDirectory);
+            modsList.Clear();
+            DirectoryInfo directoryInfo = new(defaultModDirectory);
+            if (!directoryInfo.Exists)
+                MessageBox.Show("Mod directory does not exist, aborting mod loading!");
+
+            FileInfo[] activatedModFiles = directoryInfo.GetFiles("*.zip");
+            if (activatedModFiles.Length > 0)
+            {
+                foreach (FileInfo file in activatedModFiles)
+                {
+                    Mod mod = new(GetModInfo(defaultModDirectory, file.Name));
+                    mod.SetModStatus(ModStatus.Active);
+                    AddMod(mod);
+                }
+            }
+            FileInfo[] deactivatedModFiles = directoryInfo.GetFiles("*.zip.deactivated");
+            if (deactivatedModFiles.Length > 0)
+            {
+                foreach (FileInfo file in deactivatedModFiles)
+                {
+                    Mod mod = new(GetModInfo(defaultModDirectory, file.Name));
+                    mod.SetModStatus(ModStatus.Inactive);
+                    AddMod(mod);
+                }
+            }
+
+        }
+
+        private void AddMod(Mod mod)
+        {
+            modsList.AddLast(mod);
+            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
+            item.ToolTipText = mod.GetFileName();
+            this.listView.Items.Add(item);
         }
 
         private void ActivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
             ListView.CheckedListViewItemCollection checkedMods = listView.CheckedItems;
-            ListView.SelectedListViewItemCollection selectedMods = listView.SelectedItems;
             if (checkedMods.Count > 0)
             {
                 foreach (ListViewItem checkedItem in checkedMods)
                 {
                     ActivateMod(checkedItem);
-                }
-            }
-            else if (selectedMods.Count > 0)
-            {
-                foreach (ListViewItem selectedItem in selectedMods)
-                {
-                    ActivateMod(selectedItem);
                 }
             }
             else
@@ -90,19 +124,11 @@ namespace ModControl
         private void DeactivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
             ListView.CheckedListViewItemCollection checkedMods = listView.CheckedItems;
-            ListView.SelectedListViewItemCollection selectedMods = listView.SelectedItems;
             if (checkedMods.Count > 0)
             {
                 foreach (ListViewItem checkedItem in checkedMods)
                 {
                     DeactivateMod(checkedItem);
-                }
-            }
-            else if (selectedMods.Count > 0)
-            {
-                foreach (ListViewItem selectedItem in selectedMods)
-                {
-                    DeactivateMod(selectedItem);
                 }
             }
             else
@@ -112,7 +138,7 @@ namespace ModControl
 
         }
 
-        private Mod FindModByFileName(string name, LinkedList<Mod> list)
+        private static Mod FindModByFileName(string name, LinkedList<Mod> list)
         {
             foreach(Mod mod in list)
             {
@@ -126,131 +152,38 @@ namespace ModControl
 
         private void ActivateMod (ListViewItem item)
         {
-            Mod mod = FindModByFileName(item.SubItems[4].Text, ModsStorageList);
-            if (mod != null)
+            Mod mod = FindModByFileName(item.SubItems[4].Text, modsList);
+            if (mod != null && mod.GetModStatus() == ModStatus.Inactive && File.Exists(Path.Combine(defaultModDirectory, mod.GetFileName())))
             {
-                File.Copy(Path.Combine(modStorageDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, mod.GetFileName()), false);
+                string newModName = mod.GetFileName().Substring(0, mod.GetFileName().LastIndexOf(".deactivated"));
+                File.Move(Path.Combine(defaultModDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, newModName), false);
+                mod.SetModFileName(newModName);
                 mod.SetModStatus(ModStatus.Active);
                 item.SubItems[3].Text = mod.GetModStatusString();
+                item.SubItems[4].Text = newModName;
             }
         }
 
         private void DeactivateMod(ListViewItem item)
         {
-            Mod modKeep = FindModByFileName(item.SubItems[4].Text, ModsStorageList);
-            Mod modRemove = FindModByFileName(item.SubItems[4].Text, ActiveModsList);
-            // MAKE SURE IT'S THE SAME VERSION
-            if (modKeep != null && modRemove != null && modKeep.GetModVersion().Equals(modRemove.GetModVersion()))
+            Mod mod = FindModByFileName(item.SubItems[4].Text, modsList);
+            if (mod != null && mod.GetModStatus() == ModStatus.Active && File.Exists(Path.Combine(defaultModDirectory, mod.GetFileName())))
             {
-                var removeFile = new FileInfo(Path.Combine(defaultModDirectory, modRemove.GetFileName()));
-                var keepFile = new FileInfo(Path.Combine(defaultModDirectory, modRemove.GetFileName()));
-                if (removeFile.Length.Equals(keepFile.Length)) {
-                    File.Delete(Path.Combine(defaultModDirectory, modRemove.GetFileName()));
-                    modKeep.SetModStatus(ModStatus.Inactive);
-                    item.SubItems[3].Text = modKeep.GetModStatusString();
-                }
-                else
-                {
-                    MessageBox.Show(removeFile.FullName + " and " + keepFile.FullName + "have a different size!\nBackup or update mod files instead!");
-                }
+                string newModName = mod.GetFileName() + ".deactivated";
+                File.Move(Path.Combine(defaultModDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, newModName), false);
+                mod.SetModFileName(newModName);
+                mod.SetModStatus(ModStatus.Inactive);
+                item.SubItems[3].Text = mod.GetModStatusString();
+                item.SubItems[4].Text = newModName;
             }
         }
 
-        private void PopulateListView(ListView listView, string modStorageDirectory)
+        private ModProperties GetModInfo(string modDirectory, string fileName)
         {
-            FileInfo[] modFiles = GetModFiles(modStorageDirectory);
-            /*
-             * Go through list of imported mods.
-             * For each mod, find if it exists in active mods list.
-             * If it does, check version. If version is the same mark it as active.
-             * If version is not the same, mark the storage with update status.
-             * Else it will remain Inactive.
-             * 
-             * In the end feed them all to listView.
-             */
-            foreach (FileInfo file in modFiles)
-            {
-                Mod storedMod = new Mod(GetModInfo(modStorageDirectory, file.Name));
-                if (ActiveModsList.Count>0)
-                {
-                    foreach (Mod activeMod in ActiveModsList)
-                    {
-                        if (activeMod.GetFileName().Equals(storedMod.GetFileName()))
-                        {
-                            if (activeMod.GetModVersion().Equals(storedMod.GetModVersion())) {
-                                storedMod.SetModStatus(ModStatus.Active);
-                            }
-                            else
-                            {
-                                storedMod.SetModStatus(ModStatus.Update);
-                                AddModToListView(activeMod, listView);
-                            }
-                            break;
-                        }
-                    }
-                }
-                ModsStorageList.AddLast(storedMod);
-                AddModToListView(storedMod, listView);
-            }
-            /*
-             * Go through list of active mods.
-             * See if it exists in modstorage mods.
-             * If it does exist, all is well. If it does not, then it can/should/maybe? be backedup to mod storage.
-             * This covers the case where active mod directory is used as download.
-             * Set mod status to new, and feed that too to listView. Just. That. Mod.
-             */
-            foreach (Mod activeMod in ActiveModsList)
-            {
-                var modFound = false;
-                foreach(Mod storedMod in ModsStorageList)
-                {
-
-                    if (storedMod.GetFileName().Equals(activeMod.GetFileName()))
-                    {
-                        modFound = true;
-                        break;
-                    }
-                }
-                if(!modFound)
-                {
-                    activeMod.SetModStatus(ModStatus.New);
-                    AddModToListView(activeMod, listView);
-                }
-            }
-        }
-
-        private void LoadActiveMods()
-        {
-            //Get mods from default mod directory - TODO: chaange later to selectable, or last selected
-            FileInfo[] modFiles = GetModFiles(defaultModDirectory);
-            foreach (FileInfo file in modFiles)
-            {
-                Mod mod = new Mod(GetModInfo(defaultModDirectory, file.Name));
-                mod.SetModStatus(ModStatus.Active);
-                ActiveModsList.AddLast(mod);
-                this.deactivateToolStripMenuItem.Enabled = true;
-            }
-        }
-
-        private void AddModToListView(Mod mod, ListView listView)
-        {
-            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
-            item.ToolTipText = mod.GetFileName();
-            listView.Items.Add(item);
-        }
-
-        private static FileInfo[] GetModFiles(string modDirectory)
-        {
-            DirectoryInfo dinfo = new DirectoryInfo(modDirectory);
-            return dinfo.GetFiles("*.zip"); ;
-        }
-
-        private static ModProperties GetModInfo(string modDirectory, string fileName)
-        {
-            string title = null;
-            string author = null;
-            string version = null;
-            string icon = null;
+            string title;
+            string author;
+            string version;
+            string icon;
             XDocument modDescXml;
             //Open Zip, get info.
             using ZipArchive archive = ZipFile.Open(modDirectory + "/" + fileName, ZipArchiveMode.Read);
@@ -259,7 +192,10 @@ namespace ModControl
             {
                 //System.Diagnostics.Debug.WriteLine("Loading mod:" + FileName);
                 using (StreamReader reader = new StreamReader(entry.Open()))
+                {
+                    //Handle modDesc validation here!
                     modDescXml = XDocument.Load(reader);
+                }
                 author = modDescXml.Element("modDesc").Element("author").Value.Trim();
                 XElement titleXElement = modDescXml.Element("modDesc").Element("title").Element("en");
                 if (titleXElement != null)
@@ -272,14 +208,16 @@ namespace ModControl
                 }
                 icon = modDescXml.Element("modDesc").Element("iconFilename").Value.Trim();
                 version = modDescXml.Element("modDesc").Element("version").Value.Trim();
+                return new ModProperties(fileName, title, author, version, icon);
 
             }
             else
             {
-                // Report Error with Filename and reason "modDesc.xml" not found.
+                MessageBox.Show("modDesc.xml not found in " + fileName);
+                return null;
             }
 
-            return new ModProperties(fileName, title, author, version, icon);
+            
         }
 
         // ColumnClick event handler.
@@ -342,20 +280,15 @@ namespace ModControl
             }
             
         }
-
-        private void FolderBrowserDialog1_HelpRequest(object sender, EventArgs e)
-        {
-
-        }
     }
 
     enum ModStatus
     {
         Unknown = -1,
-        Inactive, //Exists in mod storage => Activate - Copy to mod directory.
-        Active, //Exists in both mod storage, and active mod directory. Same version in both. => Deactivate - remove from mod directory
-        New, //Exists only in active mod directory, can be backed up. => Backup - copy to mod storage.
-        Update, //Versions are different, load both!
+        Inactive,
+        Active,
+        New, //not used
+        Update, //not used
         Backup //not used
     }
 }

@@ -15,21 +15,20 @@ namespace ModControl
         private System.ComponentModel.IContainer components = null;
         private MenuStrip mainMenu;
         private ToolStripMenuItem modToolStripMenuItem;
-        private ToolStripMenuItem openToolStripMenuItem;
+        private ToolStripMenuItem loadToolStripMenuItem;
         private ToolStripMenuItem activateToolStripMenuItem;
         private ToolStripMenuItem deactivateToolStripMenuItem;
         private ToolStripMenuItem reloadToolStripMenuItem;
+        private ToolStripMenuItem selectAllToolStripMenuItem;
+        private ToolStripMenuItem deselectAllToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator;
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
-        private FolderBrowserDialog folderBrowserDialog;
         private SplitContainer splitContainer;
         private SplitContainer rightSplitContainer;
         private TextBox searchBox;
         private ListView listView;
-        private StatusStrip statusStrip;
-        private string modStorageDirectory = null;
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -54,20 +53,20 @@ namespace ModControl
         {
             this.mainMenu = new MenuStrip();
             this.modToolStripMenuItem = new ToolStripMenuItem();
-            this.openToolStripMenuItem = new ToolStripMenuItem();
+            this.loadToolStripMenuItem = new ToolStripMenuItem();
             this.activateToolStripMenuItem = new ToolStripMenuItem();
             this.deactivateToolStripMenuItem = new ToolStripMenuItem();
             this.reloadToolStripMenuItem = new ToolStripMenuItem();
+            this.selectAllToolStripMenuItem = new ToolStripMenuItem();
+            this.deselectAllToolStripMenuItem = new ToolStripMenuItem();
             this.exitToolStripMenuItem = new ToolStripMenuItem();
             this.helpToolStripMenuItem = new ToolStripMenuItem();
             this.aboutToolStripMenuItem = new ToolStripMenuItem();
             this.toolStripSeparator = new ToolStripSeparator();
-            this.folderBrowserDialog = new FolderBrowserDialog();
             this.splitContainer = new SplitContainer();
             this.rightSplitContainer = new SplitContainer();
             this.searchBox = new TextBox();
             this.listView = new ListView();
-            this.statusStrip = new StatusStrip();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.SuspendLayout();
@@ -89,23 +88,25 @@ namespace ModControl
             // modToolStripMenuItem
             // 
             this.modToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
-            this.openToolStripMenuItem,
+            this.loadToolStripMenuItem,
+            this.reloadToolStripMenuItem,
+            this.selectAllToolStripMenuItem,
             this.activateToolStripMenuItem,
             this.deactivateToolStripMenuItem,
-            this.reloadToolStripMenuItem,
+            this.deselectAllToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.modToolStripMenuItem.Name = "modToolStripMenuItem";
             this.modToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.modToolStripMenuItem.Text = "&Mod";
             // 
-            // openToolStripMenuItem
+            // loadToolStripMenuItem
             // 
-            this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.openToolStripMenuItem.Text = "&Open Mod Storage";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_ItemClicked);
+            this.loadToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
+            this.loadToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.L)));
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.loadToolStripMenuItem.Text = "&Load Mods";
+            this.loadToolStripMenuItem.Click += new System.EventHandler(this.LoadToolStripMenuItem_ItemClicked);
             // 
             // activateToolStripMenuItem
             // 
@@ -137,6 +138,24 @@ namespace ModControl
             this.reloadToolStripMenuItem.Click += new System.EventHandler(this.ReloadToolStripMenuItem_ItemClicked);
             this.reloadToolStripMenuItem.Enabled = false;
             // 
+            // selectAllToolStripMenuItem
+            // 
+            this.selectAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
+            this.selectAllToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.A)));
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.selectAllToolStripMenuItem.Text = "&Select All";
+            this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItem_ItemClicked);
+            // 
+            // deselectAllToolStripMenuItem
+            // 
+            this.deselectAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.deselectAllToolStripMenuItem.Name = "deselectAllToolStripMenuItem";
+            this.deselectAllToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.E)));
+            this.deselectAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.deselectAllToolStripMenuItem.Text = "&Deslect All";
+            this.deselectAllToolStripMenuItem.Click += new System.EventHandler(this.DeselectAllToolStripMenuItem_ItemClicked);
+            // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
@@ -163,13 +182,6 @@ namespace ModControl
             this.toolStripSeparator.Name = "toolStripSeparator";
             this.toolStripSeparator.Size = new System.Drawing.Size(6, 6);
             // 
-            // folderBrowserDialog1
-            // 
-            this.folderBrowserDialog.Description = "Select the directory that you want to use as the default.";
-            this.folderBrowserDialog.RootFolder = System.Environment.SpecialFolder.MyDocuments;
-            this.folderBrowserDialog.ShowNewFolderButton = false;
-            this.folderBrowserDialog.HelpRequest += new System.EventHandler(this.FolderBrowserDialog1_HelpRequest);
-            // 
             // mainSplitContainer
             // 
             this.splitContainer.Dock = DockStyle.Fill;
@@ -187,7 +199,6 @@ namespace ModControl
             this.rightSplitContainer.TabIndex = 1;
             // mainSplitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(statusStrip);
             this.splitContainer.Panel1.Controls.Add(listView);
             this.Controls.Add(searchBox);
             this.splitContainer.TabIndex = 0;
@@ -215,14 +226,6 @@ namespace ModControl
             this.searchBox.KeyDown += new KeyEventHandler(Txt_Search_KeyDown);
             this.searchBox.Width = 300;
             this.searchBox.PlaceholderText = "Jump to...";
-            // 
-            // statusStrip1
-            // 
-            this.statusStrip.Location = new System.Drawing.Point(0, 854);
-            this.statusStrip.Name = "statusStrip1";
-            this.statusStrip.Size = new System.Drawing.Size(853, 22);
-            this.statusStrip.TabIndex = 1;
-            this.statusStrip.Text = "statusStrip1";
 
             // Right panel, split in two sections.
             // Top section is "Select active mod Folder" - Moves mod folder.
