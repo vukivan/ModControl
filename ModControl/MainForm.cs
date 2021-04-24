@@ -363,7 +363,7 @@ namespace ModControl
                 {
                     if (mod.GetModStatus().Equals(ModStatus.Active))
                     {
-                        packageFile.WriteLine(mod.GetFileName()+".deactivated");
+                        packageFile.WriteLine(mod.GetFileName());
                     }
                 }
 
@@ -377,11 +377,12 @@ namespace ModControl
             openFileDialog.Filter = "Mod Package|*.modpkg";
             openFileDialog.Title = "Load Mod Package";
             openFileDialog.InitialDirectory = defaultModDirectory;
+            openFileDialog.Multiselect = true;
             openFileDialog.ShowDialog();
 
-            if(openFileDialog.FileName != "")
+            foreach (String file in openFileDialog.FileNames)
             {
-                using (StreamReader packageFile = new(Path.Combine(defaultModDirectory, openFileDialog.FileName)))
+                using (StreamReader packageFile = new(Path.Combine(defaultModDirectory, file)))
                 {
                     if (needToReload) ReloadListView();
                     needToReload = false;
@@ -390,7 +391,7 @@ namespace ModControl
                     {
                         foreach (ListViewItem item in this.modListView.Items)
                         {
-                            if (item.SubItems[4].Text.Equals(line))
+                            if (item.SubItems[4].Text.Equals(line + ".deactivated"))
                                 ActivateMod(item);
                         }
                     }

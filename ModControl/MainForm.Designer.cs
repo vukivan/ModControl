@@ -22,7 +22,9 @@ namespace ModControl
         private ToolStripMenuItem reloadToolStripMenuItem;
         private ToolStripMenuItem selectAllToolStripMenuItem;
         private ToolStripMenuItem deselectAllToolStripMenuItem;
-        private ToolStripSeparator toolStripSeparator;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem packageToolStripMenuItem;
         private ToolStripMenuItem savePackageToolStripMenuItem;
@@ -71,7 +73,9 @@ namespace ModControl
             this.loadPackageToolStropMenuItem = new ToolStripMenuItem();
             this.helpToolStripMenuItem = new ToolStripMenuItem();
             this.aboutToolStripMenuItem = new ToolStripMenuItem();
-            this.toolStripSeparator = new ToolStripSeparator();
+            this.toolStripSeparator1 = new ToolStripSeparator();
+            this.toolStripSeparator2 = new ToolStripSeparator();
+            this.toolStripSeparator3 = new ToolStripSeparator();
             this.splitContainer = new SplitContainer();
             this.rightSplitContainer = new SplitContainer();
             this.searchBox = new TextBox();
@@ -101,14 +105,14 @@ namespace ModControl
             this.modToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.loadToolStripMenuItem,
             this.reloadToolStripMenuItem,
-            this.toolStripSeparator,
+            this.toolStripSeparator1,
             this.selectAllToolStripMenuItem,
             this.deselectAllToolStripMenuItem,
-            this.toolStripSeparator,
+            this.toolStripSeparator2,
             this.activateToolStripMenuItem,
             this.deactivateToolStripMenuItem,
             this.deactivateAllToolStripMenuItem,
-            this.toolStripSeparator,
+            this.toolStripSeparator3,
             this.exitToolStripMenuItem});
             this.modToolStripMenuItem.Name = "modToolStripMenuItem";
             this.modToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
@@ -203,7 +207,7 @@ namespace ModControl
             this.savePackageToolStripMenuItem.Name = "savePackageToolStripMenuItem";
             this.savePackageToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.S)));
             this.savePackageToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.savePackageToolStripMenuItem.Text = "&Save Package";
+            this.savePackageToolStripMenuItem.Text = "&Save Active";
             this.savePackageToolStripMenuItem.Click += new System.EventHandler(this.SavePackageToolStripMenuItem_ItemClicked);
             // 
             // loadPackageToolStropMenuItem
@@ -229,10 +233,20 @@ namespace ModControl
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.aboutToolStripMenuItem.Text = "&About...";
             // 
-            // toolStripSeparator
+            // toolStripSeparator1
             // 
-            this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(6, 6);
+            this.toolStripSeparator1.Name = "toolStripSeparator";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 6);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 6);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 6);
             // 
             // mainSplitContainer
             // 
