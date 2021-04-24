@@ -184,6 +184,7 @@ namespace ModControl
             this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.selectAllToolStripMenuItem.Text = "&Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItem_ItemClicked);
+            this.selectAllToolStripMenuItem.Enabled = false;
             // 
             // deselectAllToolStripMenuItem
             // 
@@ -193,6 +194,7 @@ namespace ModControl
             this.deselectAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.deselectAllToolStripMenuItem.Text = "&Deslect All";
             this.deselectAllToolStripMenuItem.Click += new System.EventHandler(this.DeselectAllToolStripMenuItem_ItemClicked);
+            this.deselectAllToolStripMenuItem.Enabled = false;
             // 
             // exitToolStripMenuItem
             // 

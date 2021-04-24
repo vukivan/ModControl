@@ -37,13 +37,18 @@ namespace ModControl
                     this.deactivateToolStripMenuItem.Enabled = true;
                     this.deactivateAllToolStripMenuItem.Enabled = true;
                     this.packageToolStripMenuItem.Enabled = true;
+                    this.selectAllToolStripMenuItem.Enabled = true;
+                    this.deselectAllToolStripMenuItem.Enabled = true;
                 }
             }
             else
             {
-                Directory.CreateDirectory(defaultModDirectory);
-                MessageBox.Show("Mods directory does not exist, ModControl will create it.");
-                this.reloadToolStripMenuItem.Enabled = true;
+                MessageBoxButtons buttons = MessageBoxButtons.OKCancel;
+                DialogResult result = MessageBox.Show("Mods directory does not exist, ModControl will create " + defaultModDirectory, "Mods directory missing", buttons);
+                if (result == DialogResult.OK)
+                {
+                    Directory.CreateDirectory(defaultModDirectory);
+                }
             }
 
         }
