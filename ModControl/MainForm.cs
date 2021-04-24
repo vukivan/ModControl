@@ -138,9 +138,9 @@ namespace ModControl
 
         }
 
-        private static Mod FindModByFileName(string name, LinkedList<Mod> list)
+        private static Mod FindModByFileName(string name)
         {
-            foreach(Mod mod in list)
+            foreach(Mod mod in modsList)
             {
                 if (mod.GetFileName().Equals(name))
                 {
@@ -150,9 +150,21 @@ namespace ModControl
             return null;
         }
 
+        private void DeactivateAll()
+        {
+            foreach (ListViewItem item in this.listView.Items)
+            {
+                Mod mod = FindModByFileName(item.SubItems[4].Text);
+                if(mod.GetModStatus() == ModStatus.Active)
+                {
+                    DeactivateMod(item);
+                }
+
+            }
+        }
         private void ActivateMod (ListViewItem item)
         {
-            Mod mod = FindModByFileName(item.SubItems[4].Text, modsList);
+            Mod mod = FindModByFileName(item.SubItems[4].Text);
             if (mod != null && mod.GetModStatus() == ModStatus.Inactive && File.Exists(Path.Combine(defaultModDirectory, mod.GetFileName())))
             {
                 string newModName = mod.GetFileName().Substring(0, mod.GetFileName().LastIndexOf(".deactivated"));
@@ -166,7 +178,7 @@ namespace ModControl
 
         private void DeactivateMod(ListViewItem item)
         {
-            Mod mod = FindModByFileName(item.SubItems[4].Text, modsList);
+            Mod mod = FindModByFileName(item.SubItems[4].Text);
             if (mod != null && mod.GetModStatus() == ModStatus.Active && File.Exists(Path.Combine(defaultModDirectory, mod.GetFileName())))
             {
                 string newModName = mod.GetFileName() + ".deactivated";
