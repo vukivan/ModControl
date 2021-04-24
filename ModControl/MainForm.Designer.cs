@@ -18,17 +18,22 @@ namespace ModControl
         private ToolStripMenuItem loadToolStripMenuItem;
         private ToolStripMenuItem activateToolStripMenuItem;
         private ToolStripMenuItem deactivateToolStripMenuItem;
+        private ToolStripMenuItem deactivateAllToolStripMenuItem;
         private ToolStripMenuItem reloadToolStripMenuItem;
         private ToolStripMenuItem selectAllToolStripMenuItem;
         private ToolStripMenuItem deselectAllToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator;
         private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem packageToolStripMenuItem;
+        private ToolStripMenuItem savePackageToolStripMenuItem;
+        private ToolStripMenuItem loadPackageToolStropMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
         private SplitContainer splitContainer;
         private SplitContainer rightSplitContainer;
         private TextBox searchBox;
-        private ListView listView;
+        private ListView modListView;
+        private ListView modPackageListView; //it's a dumb name, but it's a list of mods. IDK
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -53,20 +58,25 @@ namespace ModControl
         {
             this.mainMenu = new MenuStrip();
             this.modToolStripMenuItem = new ToolStripMenuItem();
+            this.packageToolStripMenuItem = new ToolStripMenuItem();
             this.loadToolStripMenuItem = new ToolStripMenuItem();
             this.activateToolStripMenuItem = new ToolStripMenuItem();
             this.deactivateToolStripMenuItem = new ToolStripMenuItem();
+            this.deactivateAllToolStripMenuItem = new ToolStripMenuItem();
             this.reloadToolStripMenuItem = new ToolStripMenuItem();
             this.selectAllToolStripMenuItem = new ToolStripMenuItem();
             this.deselectAllToolStripMenuItem = new ToolStripMenuItem();
             this.exitToolStripMenuItem = new ToolStripMenuItem();
+            this.savePackageToolStripMenuItem = new ToolStripMenuItem();
+            this.loadPackageToolStropMenuItem = new ToolStripMenuItem();
             this.helpToolStripMenuItem = new ToolStripMenuItem();
             this.aboutToolStripMenuItem = new ToolStripMenuItem();
             this.toolStripSeparator = new ToolStripSeparator();
             this.splitContainer = new SplitContainer();
             this.rightSplitContainer = new SplitContainer();
             this.searchBox = new TextBox();
-            this.listView = new ListView();
+            this.modListView = new ListView();
+            this.modPackageListView = new ListView();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.SuspendLayout();
@@ -78,6 +88,7 @@ namespace ModControl
             // 
             this.mainMenu.Items.AddRange(new ToolStripItem[] {
             this.modToolStripMenuItem,
+            this.packageToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
@@ -90,14 +101,28 @@ namespace ModControl
             this.modToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.loadToolStripMenuItem,
             this.reloadToolStripMenuItem,
+            this.toolStripSeparator,
             this.selectAllToolStripMenuItem,
+            this.deselectAllToolStripMenuItem,
+            this.toolStripSeparator,
             this.activateToolStripMenuItem,
             this.deactivateToolStripMenuItem,
-            this.deselectAllToolStripMenuItem,
+            this.deactivateAllToolStripMenuItem,
+            this.toolStripSeparator,
             this.exitToolStripMenuItem});
             this.modToolStripMenuItem.Name = "modToolStripMenuItem";
             this.modToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.modToolStripMenuItem.Text = "&Mod";
+            //
+            // packageToolStripMenuItem
+            //
+            this.packageToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+            this.savePackageToolStripMenuItem,
+            this.loadPackageToolStropMenuItem});
+            this.packageToolStripMenuItem.Name = "packageToolStripMenuItem";
+            this.packageToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.packageToolStripMenuItem.Text = "&Package";
+            this.packageToolStripMenuItem.Enabled = false;
             // 
             // loadToolStripMenuItem
             // 
@@ -127,6 +152,15 @@ namespace ModControl
             this.deactivateToolStripMenuItem.Text = "&Deactivate Selected";
             this.deactivateToolStripMenuItem.Click += new System.EventHandler(this.DeactivateToolStripMenuItem_ItemClicked);
             this.deactivateToolStripMenuItem.Enabled = false;
+            // 
+            // deactivateAllToolStripMenuItem
+            // 
+            this.deactivateAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.deactivateAllToolStripMenuItem.Name = "deactivateAllToolStripMenuItem";
+            this.deactivateAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.deactivateAllToolStripMenuItem.Text = "&Deactivate All";
+            this.deactivateAllToolStripMenuItem.Click += new System.EventHandler(this.DeactivateAllToolStripMenuItem_ItemClicked);
+            this.deactivateAllToolStripMenuItem.Enabled = false;
             // 
             // reloadToolStripMenuItem
             // 
@@ -163,6 +197,24 @@ namespace ModControl
             this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_ItemClicked);
             // 
+            // savePackageToolStripMenuItem
+            // 
+            this.savePackageToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.savePackageToolStripMenuItem.Name = "savePackageToolStripMenuItem";
+            this.savePackageToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.S)));
+            this.savePackageToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.savePackageToolStripMenuItem.Text = "&Save Package";
+            this.savePackageToolStripMenuItem.Click += new System.EventHandler(this.SavePackageToolStripMenuItem_ItemClicked);
+            // 
+            // loadPackageToolStropMenuItem
+            // 
+            this.loadPackageToolStropMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.loadPackageToolStropMenuItem.Name = "loadPackageToolStropMenuItem";
+            this.loadPackageToolStropMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.S)));
+            this.loadPackageToolStropMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.loadPackageToolStropMenuItem.Text = "&Load Package";
+            this.loadPackageToolStropMenuItem.Click += new System.EventHandler(this.LoadPackageToolStripMenuItem_ItemClicked);
+            // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
@@ -197,32 +249,43 @@ namespace ModControl
             this.rightSplitContainer.Name = "rightSplitContainer";
             this.rightSplitContainer.Orientation = Orientation.Horizontal;
             this.rightSplitContainer.TabIndex = 1;
+            //
             // mainSplitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(listView);
+            this.splitContainer.Panel1.Controls.Add(modListView);
             this.Controls.Add(searchBox);
             this.splitContainer.TabIndex = 0;
-            this.listView.Dock = DockStyle.Fill;
-            this.listView.Location = new System.Drawing.Point(0, 0);
-            this.listView.Name = "listView";
-            this.listView.View = View.Details;
-            this.listView.Columns.Add("Name", 400, HorizontalAlignment.Left);
-            this.listView.Columns.Add("Author", 300, HorizontalAlignment.Left);
-            this.listView.Columns.Add("Version", 50, HorizontalAlignment.Left);
-            this.listView.Columns.Add("Status", 75, HorizontalAlignment.Left);
-            this.listView.Scrollable = true;
-            this.listView.CheckBoxes = true;
-            this.listView.FullRowSelect = true;
-            this.listView.AllowColumnReorder = true;
+            this.modListView.Dock = DockStyle.Fill;
+            this.modListView.Location = new System.Drawing.Point(0, 0);
+            this.modListView.Name = "listView";
+            this.modListView.View = View.Details;
+            this.modListView.Columns.Add("Name", 400, HorizontalAlignment.Left);
+            this.modListView.Columns.Add("Author", 300, HorizontalAlignment.Left);
+            this.modListView.Columns.Add("Version", 50, HorizontalAlignment.Left);
+            this.modListView.Columns.Add("Status", 75, HorizontalAlignment.Left);
+            this.modListView.Scrollable = true;
+            this.modListView.CheckBoxes = true;
+            this.modListView.FullRowSelect = true;
+            this.modListView.AllowColumnReorder = true;
             // Connect the ListView.ColumnClick event to the ColumnClick event handler.
-            this.listView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
-            this.listView.ShowItemToolTips = true;
+            this.modListView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
+            this.modListView.ShowItemToolTips = true;
+            //
+            // modPackageListView
+            //
+            this.modPackageListView.Dock = DockStyle.Fill;
+            this.modPackageListView.Location = new System.Drawing.Point(0, 0);
+            this.modPackageListView.Name = "packageListView";
+            this.modPackageListView.View = View.Details;
+            this.modPackageListView.Scrollable = true;
+            this.modPackageListView.CheckBoxes = true;
 
             this.splitContainer.Panel2.Controls.Add(rightSplitContainer);
+            this.rightSplitContainer.Panel2.Controls.Add(modPackageListView);
             //
             // SearchBox
             //
-            this.searchBox.Location = new Point(100, 0);
+            this.searchBox.Location = new Point(175, 0);
             this.searchBox.KeyDown += new KeyEventHandler(Txt_Search_KeyDown);
             this.searchBox.Width = 300;
             this.searchBox.PlaceholderText = "Jump to...";

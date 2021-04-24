@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -18,6 +13,7 @@ namespace ModControl
     {
         private static readonly string defaultModDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
         private static LinkedList<Mod> modsList = new LinkedList<Mod>();
+        private static bool needToReload = false;
         public MainForm()
         {
             InitializeComponent();
@@ -39,6 +35,8 @@ namespace ModControl
                     this.reloadToolStripMenuItem.Enabled = true;
                     this.activateToolStripMenuItem.Enabled = true;
                     this.deactivateToolStripMenuItem.Enabled = true;
+                    this.deactivateAllToolStripMenuItem.Enabled = true;
+                    this.packageToolStripMenuItem.Enabled = true;
                 }
             }
             else
@@ -56,23 +54,27 @@ namespace ModControl
         }
         private void SelectAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            listView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = true);
+            modListView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = true);
         }
 
         private void DeselectAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            listView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = false);
+            modListView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = false);
         }
 
         private void LoadMods()
         {
-            this.listView.Items.Clear();
+            this.modListView.Items.Clear();
             modsList.Clear();
             DirectoryInfo directoryInfo = new(defaultModDirectory);
             if (!directoryInfo.Exists)
+            {
                 MessageBox.Show("Mod directory does not exist, aborting mod loading!");
+                return;
+            }
 
             FileInfo[] activatedModFiles = directoryInfo.GetFiles("*.zip");
+            modListView.BeginUpdate();
             if (activatedModFiles.Length > 0)
             {
                 foreach (FileInfo file in activatedModFiles)
@@ -92,20 +94,36 @@ namespace ModControl
                     AddMod(mod);
                 }
             }
+            modListView.EndUpdate();
 
+        }
+
+        private void ReloadListView()
+        {
+            this.modListView.Items.Clear();
+            foreach(Mod mod in modsList)
+            {
+                AddModListViewItem(mod);
+            }
         }
 
         private void AddMod(Mod mod)
         {
             modsList.AddLast(mod);
+            AddModListViewItem(mod);
+        }
+
+        private void AddModListViewItem(Mod mod)
+        {
             ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
             item.ToolTipText = mod.GetFileName();
-            this.listView.Items.Add(item);
+            this.modListView.Items.Add(item);
         }
+
 
         private void ActivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            ListView.CheckedListViewItemCollection checkedMods = listView.CheckedItems;
+            ListView.CheckedListViewItemCollection checkedMods = modListView.CheckedItems;
             if (checkedMods.Count > 0)
             {
                 foreach (ListViewItem checkedItem in checkedMods)
@@ -120,10 +138,9 @@ namespace ModControl
             
         }
 
-
         private void DeactivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            ListView.CheckedListViewItemCollection checkedMods = listView.CheckedItems;
+            ListView.CheckedListViewItemCollection checkedMods = modListView.CheckedItems;
             if (checkedMods.Count > 0)
             {
                 foreach (ListViewItem checkedItem in checkedMods)
@@ -150,9 +167,9 @@ namespace ModControl
             return null;
         }
 
-        private void DeactivateAll()
+        private void DeactivateAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            foreach (ListViewItem item in this.listView.Items)
+            foreach (ListViewItem item in this.modListView.Items)
             {
                 Mod mod = FindModByFileName(item.SubItems[4].Text);
                 if(mod.GetModStatus() == ModStatus.Active)
@@ -238,15 +255,15 @@ namespace ModControl
             // Set the ListViewItemSorter property to a new ListViewItemComparer 
             // object. Setting this property immediately sorts the 
             // ListView using the ListViewItemComparer object.
-            if (this.listView.Sorting.Equals(SortOrder.Ascending))
+            if (this.modListView.Sorting.Equals(SortOrder.Ascending))
             {
-                this.listView.ListViewItemSorter = new ListViewItemComparer(e.Column, SortOrder.Descending);
-                this.listView.Sorting = SortOrder.Descending;
+                this.modListView.ListViewItemSorter = new ListViewItemComparer(e.Column, SortOrder.Descending);
+                this.modListView.Sorting = SortOrder.Descending;
             }
             else
             {
-                this.listView.ListViewItemSorter = new ListViewItemComparer(e.Column, SortOrder.Ascending);
-                this.listView.Sorting = SortOrder.Ascending;
+                this.modListView.ListViewItemSorter = new ListViewItemComparer(e.Column, SortOrder.Ascending);
+                this.modListView.Sorting = SortOrder.Ascending;
             }
         }
 
@@ -280,17 +297,106 @@ namespace ModControl
             //restore backup to view
             //delete everything that doesn't mach criteria.
             //if search empty, just restore backup
-            if (listView.Items.Count>0 && e.KeyCode == Keys.Return)
+            if (searchBox.Text.Equals("") && e.KeyCode == Keys.Return)
             {
-                // Call FindItemWithText with the contents of the textbox.
-                ListViewItem foundItem =
-                    listView.FindItemWithText(searchBox.Text, true, 0, true);
-                if (foundItem != null)
+                this.modListView.BeginUpdate();
+                if (needToReload) ReloadListView();
+                needToReload = false;
+                this.modListView.EndUpdate();
+            } else if (modListView.Items.Count>0 && e.KeyCode == Keys.Return && searchBox.Text.Length > 0)
+            {
+                this.modListView.BeginUpdate();
+                if(needToReload) ReloadListView();
+                needToReload = true;
+                for (int i = this.modListView.Items.Count - 1; i >= 0; i--) 
                 {
-                    listView.TopItem = foundItem;
+                    ListViewItem currentItem = this.modListView.Items[i];
+                    if (!this.ItemMatches(currentItem, searchBox.Text))
+                    {
+                        this.modListView.Items.RemoveAt(i);
+                    }
+                }
+                this.modListView.EndUpdate();
+            }
+        }
+
+        private bool ItemMatches(ListViewItem item, string text)
+        {
+            bool matches = false;
+
+            matches |= item.Text.ToLower().Contains(text.ToLower());
+
+            if (matches)
+            {
+                return true;
+            }
+
+            foreach (ListViewItem.ListViewSubItem subitem in item.SubItems)
+            {
+                matches |= subitem.Text.ToLower().Contains(text.ToLower());
+                if (matches)
+                {
+                    return true;
                 }
             }
-            
+
+            return false;
+        }
+
+
+        private void SavePackageToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Mod Package|*.modpkg";
+            saveFileDialog.Title = "Save Mod Package";
+            saveFileDialog.InitialDirectory = defaultModDirectory;
+            saveFileDialog.ShowDialog();
+            // If the file name is not an empty string open it for saving.
+            if (saveFileDialog.FileName != "")
+            {
+                // Saves the Image via a FileStream created by the OpenFile method.
+                StreamWriter packageFile = new(Path.Combine(defaultModDirectory, saveFileDialog.FileName));
+                // Saves the Image in the appropriate ImageFormat based upon the
+                // File type selected in the dialog box.
+                // NOTE that the FilterIndex property is one-based.
+                foreach(Mod mod in modsList)
+                {
+                    if (mod.GetModStatus().Equals(ModStatus.Active))
+                    {
+                        packageFile.WriteLine(mod.GetFileName()+".deactivated");
+                    }
+                }
+
+                packageFile.Close();
+            }
+        }
+
+        private void LoadPackageToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Mod Package|*.modpkg";
+            openFileDialog.Title = "Load Mod Package";
+            openFileDialog.InitialDirectory = defaultModDirectory;
+            openFileDialog.ShowDialog();
+
+            if(openFileDialog.FileName != "")
+            {
+                using (StreamReader packageFile = new(Path.Combine(defaultModDirectory, openFileDialog.FileName)))
+                {
+                    if (needToReload) ReloadListView();
+                    needToReload = false;
+                    string line;
+                    while ((line = packageFile.ReadLine()) != null)
+                    {
+                        foreach (ListViewItem item in this.modListView.Items)
+                        {
+                            if (item.SubItems[4].Text.Equals(line))
+                                ActivateMod(item);
+                        }
+                    }
+                }
+                    
+            }
         }
     }
 
