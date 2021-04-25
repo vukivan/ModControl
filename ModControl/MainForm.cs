@@ -150,7 +150,7 @@ namespace ModControl
         private void AddModListViewItem(Mod mod)
         {
             ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
-            item.ToolTipText = mod.GetFileName() + "\n\n" + mod.GetModDesc();
+            item.ToolTipText = mod.GetFileName();
             this.modListView.Items.Add(item);
         }
 
