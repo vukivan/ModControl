@@ -35,7 +35,7 @@ namespace ModControl
         private SplitContainer rightSplitContainer;
         private TextBox searchBox;
         private ListView modListView;
-        private ListView modPackageListView; //it's a dumb name, but it's a list of mods. IDK
+        private PictureBox pictureBox;
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -80,7 +80,7 @@ namespace ModControl
             this.rightSplitContainer = new SplitContainer();
             this.searchBox = new TextBox();
             this.modListView = new ListView();
-            this.modPackageListView = new ListView();
+            this.pictureBox = new PictureBox();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.SuspendLayout();
@@ -265,6 +265,8 @@ namespace ModControl
             this.rightSplitContainer.Name = "rightSplitContainer";
             this.rightSplitContainer.Orientation = Orientation.Horizontal;
             this.rightSplitContainer.TabIndex = 1;
+            this.pictureBox.Dock = DockStyle.Fill;
+            this.rightSplitContainer.Panel1.Controls.Add(pictureBox);
             //
             // mainSplitContainer.Panel1
             // 
@@ -286,18 +288,9 @@ namespace ModControl
             // Connect the ListView.ColumnClick event to the ColumnClick event handler.
             this.modListView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
             this.modListView.ShowItemToolTips = true;
-            //
-            // modPackageListView
-            //
-            this.modPackageListView.Dock = DockStyle.Fill;
-            this.modPackageListView.Location = new System.Drawing.Point(0, 0);
-            this.modPackageListView.Name = "packageListView";
-            this.modPackageListView.View = View.Details;
-            this.modPackageListView.Scrollable = true;
-            this.modPackageListView.CheckBoxes = true;
+            this.modListView.ItemSelectionChanged += new ListViewItemSelectionChangedEventHandler(ModListView_ItemSelectionChanged);
 
             this.splitContainer.Panel2.Controls.Add(rightSplitContainer);
-            this.rightSplitContainer.Panel2.Controls.Add(modPackageListView);
             //
             // SearchBox
             //

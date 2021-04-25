@@ -1,4 +1,6 @@
-﻿namespace ModControl
+﻿using System.Xml;
+
+namespace ModControl
 {
     internal class ModProperties
     {

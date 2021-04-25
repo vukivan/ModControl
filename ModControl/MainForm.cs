@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
@@ -15,6 +19,7 @@ namespace ModControl
         private static readonly string defaultModDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
         private static LinkedList<Mod> modsList = new LinkedList<Mod>();
         private static bool needToReload = false;
+        private static GCHandle handle;
         public MainForm()
         {
             InitializeComponent();
@@ -80,7 +85,7 @@ namespace ModControl
             {
                 foreach (FileInfo file in activatedModFiles)
                 {
-                    Mod mod = new(GetModInfo(defaultModDirectory, file.Name));
+                    Mod mod = new(GetModInfo(file.Name));
                     mod.SetModStatus(ModStatus.Active);
                     AddMod(mod);
                 }
@@ -90,7 +95,7 @@ namespace ModControl
             {
                 foreach (FileInfo file in deactivatedModFiles)
                 {
-                    Mod mod = new(GetModInfo(defaultModDirectory, file.Name));
+                    Mod mod = new(GetModInfo(file.Name));
                     mod.SetModStatus(ModStatus.Inactive);
                     AddMod(mod);
                 }
@@ -231,7 +236,7 @@ namespace ModControl
             }
         }
 
-        private ModProperties GetModInfo(string modDirectory, string fileName)
+        private ModProperties GetModInfo(string fileName)
         {
             string title;
             string author;
@@ -239,7 +244,7 @@ namespace ModControl
             string icon;
             XDocument modDescXml;
             //Open Zip, get info.
-            using ZipArchive archive = ZipFile.Open(modDirectory + "/" + fileName, ZipArchiveMode.Read);
+            using ZipArchive archive = ZipFile.Open(defaultModDirectory + "/" + fileName, ZipArchiveMode.Read);
             ZipArchiveEntry entry = archive.GetEntry("modDesc.xml");
             if (entry != null)
             {
@@ -282,6 +287,113 @@ namespace ModControl
 
             
         }
+
+        private void ModListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            ListView.SelectedListViewItemCollection items = this.modListView.SelectedItems;
+
+            if(items.Count > 0)
+            {
+                GetModPreview(FindModByFileName(items[0].SubItems[4].Text));
+            }
+        }
+
+        private void GetModPreview (Mod mod)
+        {
+            using ZipArchive archive = ZipFile.Open(defaultModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);
+            string iconPath = mod.GetModIcon();
+            //Often XML says it's DDS, but it's actually PNG. Game swallows that like ... well. It swallows.
+            ZipArchiveEntry iconEntry = archive.GetEntry(iconPath);
+            if (iconEntry == null )
+            {
+                if (iconPath.Contains(".dds"))
+                {
+                    iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".dds")) + ".png";
+                    iconEntry = archive.GetEntry(iconPath);
+                }
+                if (iconPath.Contains(".png"))
+                {
+                    iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".png")) + ".dds";
+                    iconEntry = archive.GetEntry(iconPath);
+                }
+            }
+            System.Diagnostics.Debug.WriteLine(mod.GetFileName() + iconPath);
+            if (iconEntry != null)
+            {
+                StreamReader iconReader = new StreamReader(iconEntry.Open());
+                if (iconPath.Contains(".dds"))
+                {
+                    using (var image = Pfim.Pfim.FromStream(iconReader.BaseStream))
+                    {
+                        PixelFormat format = PixelFormat.Undefined;
+
+                        switch (image.Format)
+                        {
+                            case Pfim.ImageFormat.Rgb24:
+                                format = PixelFormat.Format24bppRgb;
+                                break;
+
+                            case Pfim.ImageFormat.Rgba32:
+                                format = PixelFormat.Format32bppArgb;
+                                break;
+
+                            case Pfim.ImageFormat.R5g5b5:
+                                format = PixelFormat.Format16bppRgb555;
+                                break;
+
+                            case Pfim.ImageFormat.R5g6b5:
+                                format = PixelFormat.Format16bppRgb565;
+                                break;
+
+                            case Pfim.ImageFormat.R5g5b5a1:
+                                format = PixelFormat.Format16bppArgb1555;
+                                break;
+
+                            case Pfim.ImageFormat.Rgb8:
+                                format = PixelFormat.Format8bppIndexed;
+                                break;
+                            default:
+                                var msg = $"{image.Format} is not recognized for Bitmap on Windows Forms. " +
+                       "You'd need to write a conversion function to convert the data to known format";
+                                var caption = "Unrecognized format";
+                                MessageBox.Show(msg, caption, MessageBoxButtons.OK);
+                                break;
+                        }
+                        if (format != PixelFormat.Undefined)
+                        {
+                            //Prevents serious memory leak. DO. NOT. REMOVE.
+                            if (handle.IsAllocated)
+                            {
+                                handle.Free();
+                            }
+                            handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                            var ptr = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                            var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, ptr);
+
+                            // While frameworks like WPF and ImageSharp natively understand 8bit gray values.
+                            // WinForms can only work with an 8bit palette that we construct of gray values.
+                            if (format == PixelFormat.Format8bppIndexed)
+                            {
+                                var palette = bitmap.Palette;
+                                for (int i = 0; i < 256; i++)
+                                {
+                                    palette.Entries[i] = Color.FromArgb((byte)i, (byte)i, (byte)i);
+                                }
+                                bitmap.Palette = palette;
+                            }
+
+                            this.pictureBox.Image = bitmap;
+                        }
+
+                    }
+                }
+                else if (iconPath.Contains(".png"))
+                {
+                    this.pictureBox.Image = new Bitmap(iconReader.BaseStream);
+                }
+            }
+        }
+
 
         // ColumnClick event handler.
         private void ColumnClick(object o, ColumnClickEventArgs e)
