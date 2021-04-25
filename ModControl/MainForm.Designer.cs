@@ -16,6 +16,7 @@ namespace ModControl
         private MenuStrip mainMenu;
         private ToolStripMenuItem modToolStripMenuItem;
         private ToolStripMenuItem loadToolStripMenuItem;
+        private ToolStripMenuItem loadCustomToolStripMenuItem;
         private ToolStripMenuItem activateToolStripMenuItem;
         private ToolStripMenuItem deactivateToolStripMenuItem;
         private ToolStripMenuItem deactivateAllToolStripMenuItem;
@@ -63,6 +64,7 @@ namespace ModControl
             this.modToolStripMenuItem = new ToolStripMenuItem();
             this.packageToolStripMenuItem = new ToolStripMenuItem();
             this.loadToolStripMenuItem = new ToolStripMenuItem();
+            this.loadCustomToolStripMenuItem = new ToolStripMenuItem();
             this.activateToolStripMenuItem = new ToolStripMenuItem();
             this.deactivateToolStripMenuItem = new ToolStripMenuItem();
             this.deactivateAllToolStripMenuItem = new ToolStripMenuItem();
@@ -107,6 +109,7 @@ namespace ModControl
             this.modToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.loadToolStripMenuItem,
             this.reloadToolStripMenuItem,
+            this.loadCustomToolStripMenuItem,
             this.toolStripSeparator1,
             this.selectAllToolStripMenuItem,
             this.deselectAllToolStripMenuItem,
@@ -136,8 +139,18 @@ namespace ModControl
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
             this.loadToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.L)));
             this.loadToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.loadToolStripMenuItem.Text = "&Load Mods";
+            this.loadToolStripMenuItem.Text = "&Load Default Mod Directory";
+            this.loadToolStripMenuItem.ToolTipText = "Load mods from game default mod directory";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.LoadToolStripMenuItem_ItemClicked);
+            // 
+            // loadToolStripMenuItem
+            // 
+            this.loadCustomToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.loadCustomToolStripMenuItem.Name = "loadCustomToolStripMenuItem";
+            this.loadCustomToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.loadCustomToolStripMenuItem.Text = "&Load Custom Mod Directory";
+            this.loadCustomToolStripMenuItem.ToolTipText = "Load mods from a directory of your choice";
+            this.loadCustomToolStripMenuItem.Click += new System.EventHandler(this.LoadCustomToolStripMenuItem_ItemClicked);
             // 
             // activateToolStripMenuItem
             // 

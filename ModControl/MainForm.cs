@@ -17,6 +17,7 @@ namespace ModControl
     public partial class MainForm : Form
     {
         private static readonly string defaultModDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
+        private static string activeModDirectory;
         private static LinkedList<Mod> modsList = new LinkedList<Mod>();
         private static bool needToReload = false;
         private static GCHandle handle;
@@ -33,30 +34,56 @@ namespace ModControl
 
         private void LoadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            if (Directory.Exists(defaultModDirectory))
+            activeModDirectory = defaultModDirectory;
+            if (Directory.Exists(activeModDirectory))
             {
                 LoadMods();
                 if (modsList.Count > 0)
                 {
-                    this.reloadToolStripMenuItem.Enabled = true;
-                    this.activateToolStripMenuItem.Enabled = true;
-                    this.deactivateToolStripMenuItem.Enabled = true;
-                    this.deactivateAllToolStripMenuItem.Enabled = true;
-                    this.packageToolStripMenuItem.Enabled = true;
-                    this.selectAllToolStripMenuItem.Enabled = true;
-                    this.deselectAllToolStripMenuItem.Enabled = true;
+                    EnableMenus();
                 }
             }
             else
             {
                 MessageBoxButtons buttons = MessageBoxButtons.OKCancel;
-                DialogResult result = MessageBox.Show("Mods directory does not exist, ModControl will create " + defaultModDirectory, "Mods directory missing", buttons);
+                DialogResult result = MessageBox.Show("Mods directory does not exist, ModControl will create " + activeModDirectory, "Mods directory missing", buttons);
                 if (result == DialogResult.OK)
                 {
-                    Directory.CreateDirectory(defaultModDirectory);
+                    Directory.CreateDirectory(activeModDirectory);
                 }
             }
+            
 
+        }
+
+        private void LoadCustomToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            folderBrowserDialog.ShowNewFolderButton = false;
+            folderBrowserDialog.RootFolder = Environment.SpecialFolder.MyDocuments;
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                activeModDirectory = folderBrowserDialog.SelectedPath;
+            }
+            if (Directory.Exists(activeModDirectory))
+            {
+                LoadMods();
+                if (modsList.Count > 0)
+                {
+                    EnableMenus();
+                }
+            }
+        }
+
+        private void EnableMenus ()
+        {
+            this.reloadToolStripMenuItem.Enabled = true;
+            this.activateToolStripMenuItem.Enabled = true;
+            this.deactivateToolStripMenuItem.Enabled = true;
+            this.deactivateAllToolStripMenuItem.Enabled = true;
+            this.packageToolStripMenuItem.Enabled = true;
+            this.selectAllToolStripMenuItem.Enabled = true;
+            this.deselectAllToolStripMenuItem.Enabled = true;
         }
 
         private void ReloadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
@@ -75,9 +102,10 @@ namespace ModControl
 
         private void LoadMods()
         {
+
             this.modListView.Items.Clear();
             modsList.Clear();
-            DirectoryInfo directoryInfo = new(defaultModDirectory);
+            DirectoryInfo directoryInfo = new(activeModDirectory);
 
             FileInfo[] activatedModFiles = directoryInfo.GetFiles("*.zip");
             modListView.BeginUpdate();
@@ -188,15 +216,15 @@ namespace ModControl
         private void ActivateMod (ListViewItem item)
         {
             Mod mod = FindModByFileName(item.SubItems[4].Text);
-            if (mod != null && mod.GetModStatus() == ModStatus.Inactive && File.Exists(Path.Combine(defaultModDirectory, mod.GetFileName())))
+            if (mod != null && mod.GetModStatus() == ModStatus.Inactive && File.Exists(Path.Combine(activeModDirectory, mod.GetFileName())))
             {
                 string newModName = mod.GetFileName().Substring(0, mod.GetFileName().LastIndexOf(".deactivated"));
                 try
                 {
-                    File.Move(Path.Combine(defaultModDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, newModName), false);
+                    File.Move(Path.Combine(activeModDirectory, mod.GetFileName()), Path.Combine(activeModDirectory, newModName), false);
                 } catch (IOException e)
                 {
-                    if ( File.Exists(Path.Combine(defaultModDirectory, newModName)))
+                    if ( File.Exists(Path.Combine(activeModDirectory, newModName)))
                     {
                         MessageBox.Show("It appears that " + newModName + " exists as both active and inactive mod\n" +
                             "Please remove duplicate and then reload mod directory");
@@ -213,16 +241,16 @@ namespace ModControl
         private void DeactivateMod(ListViewItem item)
         {
             Mod mod = FindModByFileName(item.SubItems[4].Text);
-            if (mod != null && mod.GetModStatus() == ModStatus.Active && File.Exists(Path.Combine(defaultModDirectory, mod.GetFileName())))
+            if (mod != null && mod.GetModStatus() == ModStatus.Active && File.Exists(Path.Combine(activeModDirectory, mod.GetFileName())))
             {
                 string newModName = mod.GetFileName() + ".deactivated";
                 try
                 {
-                    File.Move(Path.Combine(defaultModDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, newModName), false);
+                    File.Move(Path.Combine(activeModDirectory, mod.GetFileName()), Path.Combine(activeModDirectory, newModName), false);
                 }
                 catch (IOException e)
                 {
-                    if (File.Exists(Path.Combine(defaultModDirectory, newModName)))
+                    if (File.Exists(Path.Combine(activeModDirectory, newModName)))
                     {
                         MessageBox.Show("It appears that " + mod.GetFileName() + " exists as both active and inactive mod\n" +
                             "Please remove duplicate and then reload mod directory");
@@ -246,7 +274,7 @@ namespace ModControl
             XCData cData;
             XDocument modDescXml;
             //Open Zip, get info.
-            using ZipArchive archive = ZipFile.Open(defaultModDirectory + "/" + fileName, ZipArchiveMode.Read);
+            using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + fileName, ZipArchiveMode.Read);
             ZipArchiveEntry entry = archive.GetEntry("modDesc.xml");
             if (entry != null)
             {
@@ -309,13 +337,16 @@ namespace ModControl
             {
                 Mod mod = FindModByFileName(items[0].SubItems[4].Text);
                 GetModPreview(mod);
-                this.modDescTextBox.Text = mod.GetModDesc();
+                this.modDescTextBox.Text =
+                    "Title: " + mod.GetModTitle() + " version:" + mod.GetModVersion() + "\n" +
+                    "Author: " + mod.GetModAuthor() + "\n\n" +
+                    "Description:\n" + mod.GetModDesc();
             }
         }
 
         private void GetModPreview (Mod mod)
         {
-            using ZipArchive archive = ZipFile.Open(defaultModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);
+            using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);
             string iconPath = mod.GetModIcon();
             //Often XML says it's DDS, but it's actually PNG. Game swallows that like ... well. It swallows.
             ZipArchiveEntry iconEntry = archive.GetEntry(iconPath);
@@ -501,13 +532,13 @@ namespace ModControl
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Mod Package|*.modpkg";
             saveFileDialog.Title = "Save Mod Package";
-            saveFileDialog.InitialDirectory = defaultModDirectory;
+            saveFileDialog.InitialDirectory = activeModDirectory;
             saveFileDialog.ShowDialog();
             // If the file name is not an empty string open it for saving.
             if (saveFileDialog.FileName != "")
             {
                 // Saves the Image via a FileStream created by the OpenFile method.
-                StreamWriter packageFile = new(Path.Combine(defaultModDirectory, saveFileDialog.FileName));
+                StreamWriter packageFile = new(Path.Combine(activeModDirectory, saveFileDialog.FileName));
                 // Saves the Image in the appropriate ImageFormat based upon the
                 // File type selected in the dialog box.
                 // NOTE that the FilterIndex property is one-based.
@@ -528,13 +559,13 @@ namespace ModControl
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Mod Package|*.modpkg";
             openFileDialog.Title = "Load Mod Package";
-            openFileDialog.InitialDirectory = defaultModDirectory;
+            openFileDialog.InitialDirectory = activeModDirectory;
             openFileDialog.Multiselect = true;
             openFileDialog.ShowDialog();
 
             foreach (String file in openFileDialog.FileNames)
             {
-                using (StreamReader packageFile = new(Path.Combine(defaultModDirectory, file)))
+                using (StreamReader packageFile = new(Path.Combine(activeModDirectory, file)))
                 {
                     if (needToReload) ReloadListView();
                     needToReload = false;
