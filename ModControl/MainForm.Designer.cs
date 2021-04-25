@@ -36,6 +36,7 @@ namespace ModControl
         private TextBox searchBox;
         private ListView modListView;
         private PictureBox pictureBox;
+        private RichTextBox modDescTextBox;
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -79,6 +80,7 @@ namespace ModControl
             this.splitContainer = new SplitContainer();
             this.rightSplitContainer = new SplitContainer();
             this.searchBox = new TextBox();
+            this.modDescTextBox = new RichTextBox();
             this.modListView = new ListView();
             this.pictureBox = new PictureBox();
             this.mainMenu.SuspendLayout();
@@ -298,6 +300,15 @@ namespace ModControl
             this.searchBox.KeyDown += new KeyEventHandler(Txt_Search_KeyDown);
             this.searchBox.Width = 300;
             this.searchBox.PlaceholderText = "Jump to...";
+
+            this.modDescTextBox.Dock = DockStyle.Fill;
+            this.modDescTextBox.ReadOnly = true;
+            this.modDescTextBox.Multiline = true;
+            this.modDescTextBox.AcceptsTab = true;
+            this.modDescTextBox.Name = "modDescTextBox";
+            this.modDescTextBox.ScrollBars = RichTextBoxScrollBars.Vertical;
+
+            this.rightSplitContainer.Panel2.Controls.Add(modDescTextBox);
 
             // Right panel, split in two sections.
             // Top section is "Select active mod Folder" - Moves mod folder.

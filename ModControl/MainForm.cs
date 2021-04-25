@@ -122,7 +122,7 @@ namespace ModControl
         private void AddModListViewItem(Mod mod)
         {
             ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
-            item.ToolTipText = mod.GetFileName();
+            item.ToolTipText = mod.GetFileName() + "\n\n" + mod.GetModDesc();
             this.modListView.Items.Add(item);
         }
 
@@ -242,6 +242,8 @@ namespace ModControl
             string author;
             string version;
             string icon;
+            string desc;
+            XCData cData;
             XDocument modDescXml;
             //Open Zip, get info.
             using ZipArchive archive = ZipFile.Open(defaultModDirectory + "/" + fileName, ZipArchiveMode.Read);
@@ -266,7 +268,18 @@ namespace ModControl
                         }
                         icon = modDescXml.Element("modDesc").Element("iconFilename").Value.Trim();
                         version = modDescXml.Element("modDesc").Element("version").Value.Trim();
-                        return new ModProperties(fileName, title, author, version, icon);
+                        XElement descXElement = modDescXml.Element("modDesc").Element("description").Element("en");
+                        if (descXElement != null)
+                        {
+                            desc = @descXElement.Value;
+                            cData = new(descXElement.Value);
+                        }
+                        else
+                        {
+                            desc = @modDescXml.Element("modDesc").Element("description").Value;
+                            cData = new(modDescXml.Element("modDesc").Element("description").Value);
+                        }
+                        return new ModProperties(fileName, title, author, version, icon, desc);
                     }
                     catch (XmlException e)
                     {
@@ -275,7 +288,7 @@ namespace ModControl
                          *   +e.Message+"\n\nMod control will only load file name reference.\n" +
                          *   "Mod title, author and version will be unknown");
                          */
-                        return new ModProperties(fileName, fileName, "???", "???", "???");
+                        return new ModProperties(fileName, fileName, "???", "???", "???", "???");
                     }
                 }
             }
@@ -294,7 +307,9 @@ namespace ModControl
 
             if(items.Count > 0)
             {
-                GetModPreview(FindModByFileName(items[0].SubItems[4].Text));
+                Mod mod = FindModByFileName(items[0].SubItems[4].Text);
+                GetModPreview(mod);
+                this.modDescTextBox.Text = mod.GetModDesc();
             }
         }
 
@@ -304,20 +319,11 @@ namespace ModControl
             string iconPath = mod.GetModIcon();
             //Often XML says it's DDS, but it's actually PNG. Game swallows that like ... well. It swallows.
             ZipArchiveEntry iconEntry = archive.GetEntry(iconPath);
-            if (iconEntry == null )
+            if (iconEntry == null && iconPath.Contains(".png"))
             {
-                if (iconPath.Contains(".dds"))
-                {
-                    iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".dds")) + ".png";
-                    iconEntry = archive.GetEntry(iconPath);
-                }
-                if (iconPath.Contains(".png"))
-                {
-                    iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".png")) + ".dds";
-                    iconEntry = archive.GetEntry(iconPath);
-                }
+                iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".png")) + ".dds";
+                iconEntry = archive.GetEntry(iconPath);
             }
-            System.Diagnostics.Debug.WriteLine(mod.GetFileName() + iconPath);
             if (iconEntry != null)
             {
                 StreamReader iconReader = new StreamReader(iconEntry.Open());

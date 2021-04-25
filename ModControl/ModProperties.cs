@@ -1,4 +1,4 @@
-﻿using System.Xml;
+﻿using System.Xml.Linq;
 
 namespace ModControl
 {
@@ -9,14 +9,17 @@ namespace ModControl
         public string version;
         public string icon;
         public string filename;
+        public string desc;
+        public XCData cData;
 
-        public ModProperties(string filename, string title, string author, string version, string icon)
+        public ModProperties(string filename, string title, string author, string version, string icon, string desc)
         {
             this.title = title;
             this.author = author;
             this.version = version;
             this.icon = icon;
             this.filename = filename;
+            this.desc = desc;
         }
     }
 }

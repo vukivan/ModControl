@@ -1,4 +1,4 @@
-﻿using System.Xml;
+﻿using System.Xml.Linq;
 
 namespace ModControl
 {
@@ -10,6 +10,7 @@ namespace ModControl
         private readonly string modIcon;
         private readonly string modVersion;
         private string Status;
+        private readonly string modDesc;
 
         public string GetFileName()
         {
@@ -34,6 +35,11 @@ namespace ModControl
         public string GetModIcon()
         {
             return this.modIcon;
+        }
+
+        public string GetModDesc()
+        {
+            return this.modDesc;
         }
 
         public ModStatus GetModStatus()
@@ -81,6 +87,7 @@ namespace ModControl
             this.modVersion = Properties.version;
             this.modIcon = Properties.icon;
             this.SetModStatus(ModStatus.Inactive);
+            this.modDesc = Properties.desc;
         }
         
     }
