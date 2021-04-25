@@ -12,4 +12,8 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Pfim" Version="0.10.0" />
+  </ItemGroup>
+
 </Project>

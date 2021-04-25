@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Windows.Forms;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace ModControl
@@ -72,11 +73,6 @@ namespace ModControl
             this.modListView.Items.Clear();
             modsList.Clear();
             DirectoryInfo directoryInfo = new(defaultModDirectory);
-            if (!directoryInfo.Exists)
-            {
-                MessageBox.Show("Mod directory does not exist, aborting mod loading!");
-                return;
-            }
 
             FileInfo[] activatedModFiles = directoryInfo.GetFiles("*.zip");
             modListView.BeginUpdate();
@@ -190,7 +186,18 @@ namespace ModControl
             if (mod != null && mod.GetModStatus() == ModStatus.Inactive && File.Exists(Path.Combine(defaultModDirectory, mod.GetFileName())))
             {
                 string newModName = mod.GetFileName().Substring(0, mod.GetFileName().LastIndexOf(".deactivated"));
-                File.Move(Path.Combine(defaultModDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, newModName), false);
+                try
+                {
+                    File.Move(Path.Combine(defaultModDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, newModName), false);
+                } catch (IOException e)
+                {
+                    if ( File.Exists(Path.Combine(defaultModDirectory, newModName)))
+                    {
+                        MessageBox.Show("It appears that " + newModName + " exists as both active and inactive mod\n" +
+                            "Please remove duplicate and then reload mod directory");
+                        return;
+                    }
+                }
                 mod.SetModFileName(newModName);
                 mod.SetModStatus(ModStatus.Active);
                 item.SubItems[3].Text = mod.GetModStatusString();
@@ -204,7 +211,19 @@ namespace ModControl
             if (mod != null && mod.GetModStatus() == ModStatus.Active && File.Exists(Path.Combine(defaultModDirectory, mod.GetFileName())))
             {
                 string newModName = mod.GetFileName() + ".deactivated";
-                File.Move(Path.Combine(defaultModDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, newModName), false);
+                try
+                {
+                    File.Move(Path.Combine(defaultModDirectory, mod.GetFileName()), Path.Combine(defaultModDirectory, newModName), false);
+                }
+                catch (IOException e)
+                {
+                    if (File.Exists(Path.Combine(defaultModDirectory, newModName)))
+                    {
+                        MessageBox.Show("It appears that " + mod.GetFileName() + " exists as both active and inactive mod\n" +
+                            "Please remove duplicate and then reload mod directory");
+                        return;
+                    }
+                }
                 mod.SetModFileName(newModName);
                 mod.SetModStatus(ModStatus.Inactive);
                 item.SubItems[3].Text = mod.GetModStatusString();
@@ -227,23 +246,33 @@ namespace ModControl
                 //System.Diagnostics.Debug.WriteLine("Loading mod:" + FileName);
                 using (StreamReader reader = new StreamReader(entry.Open()))
                 {
-                    //Handle modDesc validation here!
-                    modDescXml = XDocument.Load(reader);
+                    try
+                    {
+                        modDescXml = XDocument.Load(reader);
+                        author = modDescXml.Element("modDesc").Element("author").Value.Trim();
+                        XElement titleXElement = modDescXml.Element("modDesc").Element("title").Element("en");
+                        if (titleXElement != null)
+                        {
+                            title = titleXElement.Value.Trim();
+                        }
+                        else
+                        {
+                            title = modDescXml.Element("modDesc").Element("title").Value.Trim();
+                        }
+                        icon = modDescXml.Element("modDesc").Element("iconFilename").Value.Trim();
+                        version = modDescXml.Element("modDesc").Element("version").Value.Trim();
+                        return new ModProperties(fileName, title, author, version, icon);
+                    }
+                    catch (XmlException e)
+                    {
+                        /*
+                         *MessageBox.Show(fileName + "/modDesc.xml is not a valid XML file.\n\n"
+                         *   +e.Message+"\n\nMod control will only load file name reference.\n" +
+                         *   "Mod title, author and version will be unknown");
+                         */
+                        return new ModProperties(fileName, fileName, "???", "???", "???");
+                    }
                 }
-                author = modDescXml.Element("modDesc").Element("author").Value.Trim();
-                XElement titleXElement = modDescXml.Element("modDesc").Element("title").Element("en");
-                if (titleXElement != null)
-                {
-                    title = titleXElement.Value.Trim();
-                }
-                else
-                {
-                    title = modDescXml.Element("modDesc").Element("title").Value.Trim();
-                }
-                icon = modDescXml.Element("modDesc").Element("iconFilename").Value.Trim();
-                version = modDescXml.Element("modDesc").Element("version").Value.Trim();
-                return new ModProperties(fileName, title, author, version, icon);
-
             }
             else
             {
