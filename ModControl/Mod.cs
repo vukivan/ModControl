@@ -11,6 +11,7 @@ namespace ModControl
         private readonly string modVersion;
         private string Status;
         private readonly string modDesc;
+        private readonly string size;
 
         public string GetFileName()
         {
@@ -40,6 +41,11 @@ namespace ModControl
         public string GetModDesc()
         {
             return this.modDesc;
+        }
+
+        public string GetSize()
+        {
+            return this.size;
         }
 
         public ModStatus GetModStatus()
@@ -88,6 +94,7 @@ namespace ModControl
             this.modIcon = Properties.icon;
             this.SetModStatus(ModStatus.Inactive);
             this.modDesc = Properties.desc;
+            this.size = Properties.size;
         }
         
     }

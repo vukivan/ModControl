@@ -149,7 +149,7 @@ namespace ModControl
 
         private void AddModListViewItem(Mod mod)
         {
-            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
+            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetSize(), mod.GetFileName() });
             item.ToolTipText = mod.GetFileName();
             this.modListView.Items.Add(item);
             this.backupModList.Add((ListViewItem)item.Clone());
@@ -279,6 +279,7 @@ namespace ModControl
             //Open Zip, get info.
             using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + fileName, ZipArchiveMode.Read);
             FileInfo fileInfo = new FileInfo(activeModDirectory + "/" + fileName);
+            string size = fileInfo.Length.ToString();
             ZipArchiveEntry entry = archive.GetEntry("modDesc.xml");
             if (entry != null)
             {
@@ -309,7 +310,7 @@ namespace ModControl
                         {
                             desc = @modDescXml.Element("modDesc").Element("description").Value;
                         }
-                        return new ModProperties(fileName, title, author, version, icon, desc);
+                        return new ModProperties(fileName, title, author, version, icon, desc, size);
                     }
                     catch (XmlException e)
                     {
@@ -318,7 +319,7 @@ namespace ModControl
                          *   +e.Message+"\n\nMod control will only load file name reference.\n" +
                          *   "Mod title, author and version will be unknown");
                          */
-                        return new ModProperties(fileName, fileName, "???", "???", "???", "???");
+                        return new ModProperties(fileName, fileName, "???", "???", "???", "???", size);
                     }
                 }
             }
@@ -337,7 +338,7 @@ namespace ModControl
 
             if(items.Count > 0)
             {
-                Mod mod = FindModByFileName(items[0].SubItems[4].Text);
+                Mod mod = FindModByFileName(items[0].SubItems[5].Text);
                 GetModPreview(mod);
                 this.modDescTextBox.Text =
                     "Title: " + mod.GetModTitle() + " version:" + mod.GetModVersion() + "\n" +
@@ -468,10 +469,21 @@ namespace ModControl
             }
             public int Compare(object x, object y)
             {
-                if (order.Equals(SortOrder.Ascending))
-                    return String.Compare(((ListViewItem)x).SubItems[this.column].Text, ((ListViewItem)y).SubItems[this.column].Text);
+                if (this.column == 4)
+                {
+                    long diff = (long.Parse(((ListViewItem)x).SubItems[this.column].Text) - long.Parse(((ListViewItem)y).SubItems[this.column].Text));
+                    if (order.Equals(SortOrder.Ascending))
+                        return diff > 0 ? 1 : -1;
+                    else
+                        return diff <= 0 ? 1 : -1;
+                }
                 else
-                    return (-1)*String.Compare(((ListViewItem)x).SubItems[this.column].Text, ((ListViewItem)y).SubItems[this.column].Text);
+                {
+                    if (order.Equals(SortOrder.Ascending))
+                        return String.Compare(((ListViewItem)x).SubItems[this.column].Text, ((ListViewItem)y).SubItems[this.column].Text);
+                    else
+                        return (-1) * String.Compare(((ListViewItem)x).SubItems[this.column].Text, ((ListViewItem)y).SubItems[this.column].Text);
+                }
             }
         }
 

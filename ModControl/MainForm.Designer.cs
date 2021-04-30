@@ -290,10 +290,11 @@ namespace ModControl
             this.modListView.Location = new System.Drawing.Point(0, 0);
             this.modListView.Name = "listView";
             this.modListView.View = View.Details;
-            this.modListView.Columns.Add("Name", 400, HorizontalAlignment.Left);
+            this.modListView.Columns.Add("Name", 350, HorizontalAlignment.Left);
             this.modListView.Columns.Add("Author", 300, HorizontalAlignment.Left);
             this.modListView.Columns.Add("Version", 50, HorizontalAlignment.Left);
             this.modListView.Columns.Add("Status", 75, HorizontalAlignment.Left);
+            this.modListView.Columns.Add("Size in bytes", 90, HorizontalAlignment.Left);
             this.modListView.Scrollable = true;
             this.modListView.CheckBoxes = true;
             this.modListView.FullRowSelect = true;

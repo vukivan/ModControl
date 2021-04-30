@@ -10,8 +10,9 @@ namespace ModControl
         public string icon;
         public string filename;
         public string desc;
+        public string size;
 
-        public ModProperties(string filename, string title, string author, string version, string icon, string desc)
+        public ModProperties(string filename, string title, string author, string version, string icon, string desc, string size)
         {
             this.title = title;
             this.author = author;
@@ -19,6 +20,7 @@ namespace ModControl
             this.icon = icon;
             this.filename = filename;
             this.desc = desc;
+            this.size = size;
         }
     }
 }
