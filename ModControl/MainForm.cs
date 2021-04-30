@@ -352,6 +352,10 @@ namespace ModControl
             using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);
             string iconPath = mod.GetModIcon();
             //Often XML says it's DDS, but it's actually PNG. Game swallows that like ... well. It swallows.
+            if(iconPath.Equals("???"))
+            {
+                this.pictureBox.Image = null;
+            }
             ZipArchiveEntry iconEntry = archive.GetEntry(iconPath);
             if (iconEntry == null && iconPath.Contains(".png"))
             {
