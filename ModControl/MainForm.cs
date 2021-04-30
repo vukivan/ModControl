@@ -351,15 +351,18 @@ namespace ModControl
         {
             using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);
             string iconPath = mod.GetModIcon();
-            //Often XML says it's DDS, but it's actually PNG. Game swallows that like ... well. It swallows.
-            if(iconPath.Equals("???"))
-            {
-                this.pictureBox.Image = null;
-            }
             ZipArchiveEntry iconEntry = archive.GetEntry(iconPath);
+            //sometimes path says png, but file is actually dds.
+            //game ALWAYS loads dds.
             if (iconEntry == null && iconPath.Contains(".png"))
             {
                 iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".png")) + ".dds";
+                iconEntry = archive.GetEntry(iconPath);
+            }
+            //this scenario should not happen, but I'm leaving this here since Giants engine might have fallback for png files
+            if (iconEntry == null && iconPath.Contains(".dds"))
+            {
+                iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".dds")) + ".png";
                 iconEntry = archive.GetEntry(iconPath);
             }
             if (iconEntry != null)
@@ -431,10 +434,14 @@ namespace ModControl
 
                     }
                 }
-                else if (iconPath.Contains(".png"))
+                else
                 {
                     this.pictureBox.Image = new Bitmap(iconReader.BaseStream);
                 }
+            }
+            else
+            {
+                this.pictureBox.Image = null;
             }
         }
 
