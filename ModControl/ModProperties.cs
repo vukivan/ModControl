@@ -10,7 +10,6 @@ namespace ModControl
         public string icon;
         public string filename;
         public string desc;
-        public XCData cData;
 
         public ModProperties(string filename, string title, string author, string version, string icon, string desc)
         {

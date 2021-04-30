@@ -1,13 +1,10 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 
 namespace ModControl
 {
-    partial class MainForm
+    public partial class MainForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -36,6 +33,7 @@ namespace ModControl
         private SplitContainer rightSplitContainer;
         private TextBox searchBox;
         private ListView modListView;
+        private List<ListViewItem> backupModList = new List<ListViewItem>();
         private PictureBox pictureBox;
         private RichTextBox modDescTextBox;
 
@@ -102,7 +100,7 @@ namespace ModControl
             this.mainMenu.Name = "mainMenu";
             this.mainMenu.Size = new System.Drawing.Size(800, 48);
             this.mainMenu.TabIndex = 0;
-            this.mainMenu.Text = "menuStrip1";
+            this.mainMenu.Text = "menuStrip";
             // 
             // modToolStripMenuItem
             // 
@@ -300,7 +298,6 @@ namespace ModControl
             this.modListView.CheckBoxes = true;
             this.modListView.FullRowSelect = true;
             this.modListView.AllowColumnReorder = true;
-            // Connect the ListView.ColumnClick event to the ColumnClick event handler.
             this.modListView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
             this.modListView.ShowItemToolTips = true;
             this.modListView.ItemSelectionChanged += new ListViewItemSelectionChangedEventHandler(ModListView_ItemSelectionChanged);

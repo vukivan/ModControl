@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -19,7 +18,6 @@ namespace ModControl
         private static readonly string defaultModDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
         private static string activeModDirectory;
         private static LinkedList<Mod> modsList = new LinkedList<Mod>();
-        private static bool needToReload = false;
         private static GCHandle handle;
         public MainForm()
         {
@@ -88,6 +86,11 @@ namespace ModControl
 
         private void ReloadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
+            /*
+             * if game is working
+             *      show message box that game is running, and that any mods downloaded ingame, will only show after game is restarted.
+             *      offer OK & Cancel
+             */
             LoadMods();
         }
         private void SelectAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
@@ -135,10 +138,7 @@ namespace ModControl
         private void ReloadListView()
         {
             this.modListView.Items.Clear();
-            foreach(Mod mod in modsList)
-            {
-                AddModListViewItem(mod);
-            }
+            this.modListView.Items.AddRange(this.backupModList.ToArray());
         }
 
         private void AddMod(Mod mod)
@@ -152,11 +152,13 @@ namespace ModControl
             ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetFileName() });
             item.ToolTipText = mod.GetFileName();
             this.modListView.Items.Add(item);
+            this.backupModList.Add((ListViewItem)item.Clone());
         }
 
 
         private void ActivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
+            //Detect if game is running and show message box that activated mods will not be seen until game restarts
             ListView.CheckedListViewItemCollection checkedMods = modListView.CheckedItems;
             if (checkedMods.Count > 0)
             {
@@ -174,6 +176,7 @@ namespace ModControl
 
         private void DeactivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
+            //disable if game is started
             ListView.CheckedListViewItemCollection checkedMods = modListView.CheckedItems;
             if (checkedMods.Count > 0)
             {
@@ -203,6 +206,7 @@ namespace ModControl
 
         private void DeactivateAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
+            //disable if game is started
             foreach (ListViewItem item in this.modListView.Items)
             {
                 Mod mod = FindModByFileName(item.SubItems[4].Text);
@@ -271,10 +275,10 @@ namespace ModControl
             string version;
             string icon;
             string desc;
-            XCData cData;
             XDocument modDescXml;
             //Open Zip, get info.
             using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + fileName, ZipArchiveMode.Read);
+            FileInfo fileInfo = new FileInfo(activeModDirectory + "/" + fileName);
             ZipArchiveEntry entry = archive.GetEntry("modDesc.xml");
             if (entry != null)
             {
@@ -300,12 +304,10 @@ namespace ModControl
                         if (descXElement != null)
                         {
                             desc = @descXElement.Value;
-                            cData = new(descXElement.Value);
                         }
                         else
                         {
                             desc = @modDescXml.Element("modDesc").Element("description").Value;
-                            cData = new(modDescXml.Element("modDesc").Element("description").Value);
                         }
                         return new ModProperties(fileName, title, author, version, icon, desc);
                     }
@@ -480,17 +482,15 @@ namespace ModControl
             //restore backup to view
             //delete everything that doesn't mach criteria.
             //if search empty, just restore backup
-            if (searchBox.Text.Equals("") && e.KeyCode == Keys.Return)
+            if (searchBox.Text.Equals(""))
             {
                 this.modListView.BeginUpdate();
-                if (needToReload) ReloadListView();
-                needToReload = false;
+                ReloadListView();
                 this.modListView.EndUpdate();
-            } else if (modListView.Items.Count>0 && e.KeyCode == Keys.Return && searchBox.Text.Length > 0)
+            } else if (backupModList.Count>0 && searchBox.Text.Length > 0)
             {
                 this.modListView.BeginUpdate();
-                if(needToReload) ReloadListView();
-                needToReload = true;
+                ReloadListView();
                 for (int i = this.modListView.Items.Count - 1; i >= 0; i--) 
                 {
                     ListViewItem currentItem = this.modListView.Items[i];
@@ -567,8 +567,7 @@ namespace ModControl
             {
                 using (StreamReader packageFile = new(Path.Combine(activeModDirectory, file)))
                 {
-                    if (needToReload) ReloadListView();
-                    needToReload = false;
+                    ReloadListView();
                     string line;
                     while ((line = packageFile.ReadLine()) != null)
                     {
