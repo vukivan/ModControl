@@ -19,6 +19,7 @@ namespace ModControl
         private static string activeModDirectory;
         private static LinkedList<Mod> modsList = new LinkedList<Mod>();
         private static GCHandle handle;
+        private static readonly int FILE_NAME_COLUMN = 5;
         public MainForm()
         {
             InitializeComponent();
@@ -209,7 +210,7 @@ namespace ModControl
             //disable if game is started
             foreach (ListViewItem item in this.modListView.Items)
             {
-                Mod mod = FindModByFileName(item.SubItems[4].Text);
+                Mod mod = FindModByFileName(item.SubItems[FILE_NAME_COLUMN].Text);
                 if(mod.GetModStatus() == ModStatus.Active)
                 {
                     DeactivateMod(item);
@@ -219,7 +220,7 @@ namespace ModControl
         }
         private void ActivateMod (ListViewItem item)
         {
-            Mod mod = FindModByFileName(item.SubItems[5].Text);
+            Mod mod = FindModByFileName(item.SubItems[FILE_NAME_COLUMN].Text);
             if (mod != null && mod.GetModStatus() == ModStatus.Inactive && File.Exists(Path.Combine(activeModDirectory, mod.GetFileName())))
             {
                 string newModFileName = mod.GetFileName().Substring(0, mod.GetFileName().LastIndexOf(".deactivated"));
@@ -238,13 +239,13 @@ namespace ModControl
                 mod.SetModFileName(newModFileName);
                 mod.SetModStatus(ModStatus.Active);
                 item.SubItems[3].Text = mod.GetModStatusString();
-                item.SubItems[4].Text = newModFileName;
+                item.SubItems[FILE_NAME_COLUMN].Text = newModFileName;
             }
         }
 
         private void DeactivateMod(ListViewItem item)
         {
-            Mod mod = FindModByFileName(item.SubItems[4].Text);
+            Mod mod = FindModByFileName(item.SubItems[FILE_NAME_COLUMN].Text);
             if (mod != null && mod.GetModStatus() == ModStatus.Active && File.Exists(Path.Combine(activeModDirectory, mod.GetFileName())))
             {
                 string newModName = mod.GetFileName() + ".deactivated";
@@ -264,7 +265,7 @@ namespace ModControl
                 mod.SetModFileName(newModName);
                 mod.SetModStatus(ModStatus.Inactive);
                 item.SubItems[3].Text = mod.GetModStatusString();
-                item.SubItems[4].Text = newModName;
+                item.SubItems[FILE_NAME_COLUMN].Text = newModName;
             }
         }
 
@@ -338,7 +339,7 @@ namespace ModControl
 
             if(items.Count > 0)
             {
-                Mod mod = FindModByFileName(items[0].SubItems[5].Text);
+                Mod mod = FindModByFileName(items[0].SubItems[FILE_NAME_COLUMN].Text);
                 GetModPreview(mod);
                 this.modDescTextBox.Text =
                     "Title: " + mod.GetModTitle() + " version:" + mod.GetModVersion() + "\n" +
@@ -596,7 +597,7 @@ namespace ModControl
                     {
                         foreach (ListViewItem item in this.modListView.Items)
                         {
-                            if (item.SubItems[4].Text.Equals(line + ".deactivated"))
+                            if (item.SubItems[FILE_NAME_COLUMN].Text.Equals(line + ".deactivated"))
                                 ActivateMod(item);
                         }
                     }
