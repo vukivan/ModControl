@@ -35,13 +35,9 @@ namespace ModControl
         private void LoadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
             activeModDirectory = defaultModDirectory;
-            if (Directory.Exists(activeModDirectory))
+            if (Directory.Exists(activeModDirectory) && LoadMods() > 0)
             {
-                LoadMods();
-                if (modsList.Count > 0)
-                {
-                    EnableMenus();
-                }
+                EnableMenus();
             }
             else
             {
@@ -65,13 +61,9 @@ namespace ModControl
             {
                 activeModDirectory = folderBrowserDialog.SelectedPath;
             }
-            if (Directory.Exists(activeModDirectory))
+            if (LoadMods() > 0)
             {
-                LoadMods();
-                if (modsList.Count > 0)
-                {
-                    EnableMenus();
-                }
+                EnableMenus();
             }
         }
 
@@ -88,12 +80,10 @@ namespace ModControl
 
         private void ReloadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            /*
-             * if game is working
-             *      show message box that game is running, and that any mods downloaded ingame, will only show after game is restarted.
-             *      offer OK & Cancel
-             */
-            LoadMods();
+            if (LoadMods() > 0)
+            {
+                EnableMenus();
+            }
         }
         private void SelectAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
@@ -105,9 +95,9 @@ namespace ModControl
             modListView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = false);
         }
 
-        private void LoadMods()
+        private int LoadMods()
         {
-
+            int modCount = 0;
             this.modListView.Items.Clear();
             modsList.Clear();
             DirectoryInfo directoryInfo = new(activeModDirectory);
@@ -122,6 +112,7 @@ namespace ModControl
                     Mod mod = new(properties);
                     mod.SetModStatus(ModStatus.Active);
                     AddMod(mod);
+                    modCount++;
                 }
             }
             foreach (FileInfo file in deactivatedModFiles)
@@ -132,10 +123,11 @@ namespace ModControl
                     Mod mod = new(properties);
                     mod.SetModStatus(ModStatus.Inactive);
                     AddMod(mod);
+                    modCount++;
                 }
             }
             modListView.EndUpdate();
-
+            return modCount;
         }
 
         private void ReloadListView()
