@@ -19,6 +19,7 @@ namespace ModControl
         private static string activeModDirectory;
         private static LinkedList<Mod> modsList = new LinkedList<Mod>();
         private static GCHandle handle;
+        private static readonly int STATUS_COLUMN = 3;
         private static readonly int FILE_NAME_COLUMN = 5;
         public MainForm()
         {
@@ -238,7 +239,7 @@ namespace ModControl
                 }
                 mod.SetModFileName(newModFileName);
                 mod.SetModStatus(ModStatus.Active);
-                item.SubItems[3].Text = mod.GetModStatusString();
+                item.SubItems[STATUS_COLUMN].Text = mod.GetModStatusString();
                 item.SubItems[FILE_NAME_COLUMN].Text = newModFileName;
             }
         }
@@ -264,7 +265,7 @@ namespace ModControl
                 }
                 mod.SetModFileName(newModName);
                 mod.SetModStatus(ModStatus.Inactive);
-                item.SubItems[3].Text = mod.GetModStatusString();
+                item.SubItems[STATUS_COLUMN].Text = mod.GetModStatusString();
                 item.SubItems[FILE_NAME_COLUMN].Text = newModName;
             }
         }
