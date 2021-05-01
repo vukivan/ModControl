@@ -111,24 +111,25 @@ namespace ModControl
             this.modListView.Items.Clear();
             modsList.Clear();
             DirectoryInfo directoryInfo = new(activeModDirectory);
-
             FileInfo[] activatedModFiles = directoryInfo.GetFiles("*.zip");
+            FileInfo[] deactivatedModFiles = directoryInfo.GetFiles("*.zip.deactivated");
             modListView.BeginUpdate();
-            if (activatedModFiles.Length > 0)
+            foreach (FileInfo file in activatedModFiles)
             {
-                foreach (FileInfo file in activatedModFiles)
+                ModProperties properties = GetModInfo(file.Name);
+                if (properties != null)
                 {
-                    Mod mod = new(GetModInfo(file.Name));
+                    Mod mod = new(properties);
                     mod.SetModStatus(ModStatus.Active);
                     AddMod(mod);
                 }
             }
-            FileInfo[] deactivatedModFiles = directoryInfo.GetFiles("*.zip.deactivated");
-            if (deactivatedModFiles.Length > 0)
+            foreach (FileInfo file in deactivatedModFiles)
             {
-                foreach (FileInfo file in deactivatedModFiles)
+                ModProperties properties = GetModInfo(file.Name);
+                if (properties != null)
                 {
-                    Mod mod = new(GetModInfo(file.Name));
+                    Mod mod = new(properties);
                     mod.SetModStatus(ModStatus.Inactive);
                     AddMod(mod);
                 }
