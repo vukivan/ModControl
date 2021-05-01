@@ -219,26 +219,26 @@ namespace ModControl
         }
         private void ActivateMod (ListViewItem item)
         {
-            Mod mod = FindModByFileName(item.SubItems[4].Text);
+            Mod mod = FindModByFileName(item.SubItems[5].Text);
             if (mod != null && mod.GetModStatus() == ModStatus.Inactive && File.Exists(Path.Combine(activeModDirectory, mod.GetFileName())))
             {
-                string newModName = mod.GetFileName().Substring(0, mod.GetFileName().LastIndexOf(".deactivated"));
+                string newModFileName = mod.GetFileName().Substring(0, mod.GetFileName().LastIndexOf(".deactivated"));
                 try
                 {
-                    File.Move(Path.Combine(activeModDirectory, mod.GetFileName()), Path.Combine(activeModDirectory, newModName), false);
+                    File.Move(Path.Combine(activeModDirectory, mod.GetFileName()), Path.Combine(activeModDirectory, newModFileName), false);
                 } catch (IOException e)
                 {
-                    if ( File.Exists(Path.Combine(activeModDirectory, newModName)))
+                    if ( File.Exists(Path.Combine(activeModDirectory, newModFileName)))
                     {
-                        MessageBox.Show("It appears that " + newModName + " exists as both active and inactive mod\n" +
+                        MessageBox.Show("It appears that " + newModFileName + " exists as both active and inactive mod\n" +
                             "Please remove duplicate and then reload mod directory");
                         return;
                     }
                 }
-                mod.SetModFileName(newModName);
+                mod.SetModFileName(newModFileName);
                 mod.SetModStatus(ModStatus.Active);
                 item.SubItems[3].Text = mod.GetModStatusString();
-                item.SubItems[4].Text = newModName;
+                item.SubItems[4].Text = newModFileName;
             }
         }
 
