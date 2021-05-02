@@ -310,7 +310,8 @@ namespace ModControl
             this.searchBox.Location = new Point(175, 0);
             this.searchBox.KeyUp += new KeyEventHandler(Txt_Search_KeyUp);
             this.searchBox.Width = 300;
-            this.searchBox.PlaceholderText = "Jump to...";
+            this.searchBox.PlaceholderText = "Type to search...";
+            this.searchBox.Enabled = false;
 
             this.modDescTextBox.Dock = DockStyle.Fill;
             this.modDescTextBox.ReadOnly = true;

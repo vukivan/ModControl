@@ -76,6 +76,7 @@ namespace ModControl
             this.packageToolStripMenuItem.Enabled = true;
             this.selectAllToolStripMenuItem.Enabled = true;
             this.deselectAllToolStripMenuItem.Enabled = true;
+            this.searchBox.Enabled = true;
         }
 
         private void ReloadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
@@ -523,35 +524,26 @@ namespace ModControl
 
         private void Txt_Search_KeyUp(object sender, KeyEventArgs e)
         {
-            //TODO: refactor this so that it actually filters
-            //Save list somewhere else, not in this method
-            //restore backup to view
-            //delete everything that doesn't mach criteria.
-            //if search empty, just restore backup
-            if(modsList.Count > 0)
+            if (searchBox.Text.Equals(""))
             {
-                if (searchBox.Text.Equals(""))
-                {
-                    this.modListView.BeginUpdate();
-                    ReloadListView();
-                    this.modListView.EndUpdate();
-                }
-                else if (backupModList.Count > 0 && searchBox.Text.Length > 0)
-                {
-                    this.modListView.BeginUpdate();
-                    ReloadListView();
-                    for (int i = this.modListView.Items.Count - 1; i >= 0; i--)
-                    {
-                        ListViewItem currentItem = this.modListView.Items[i];
-                        if (!this.ItemMatches(currentItem, searchBox.Text))
-                        {
-                            this.modListView.Items.RemoveAt(i);
-                        }
-                    }
-                    this.modListView.EndUpdate();
-                }
+                this.modListView.BeginUpdate();
+                ReloadListView();
+                this.modListView.EndUpdate();
             }
-            
+            else if (backupModList.Count > 0 && searchBox.Text.Length > 0)
+            {
+                this.modListView.BeginUpdate();
+                ReloadListView();
+                for (int i = this.modListView.Items.Count - 1; i >= 0; i--)
+                {
+                    ListViewItem currentItem = this.modListView.Items[i];
+                    if (!this.ItemMatches(currentItem, searchBox.Text))
+                    {
+                        this.modListView.Items.RemoveAt(i);
+                    }
+                }
+                this.modListView.EndUpdate();
+            }
         }
 
         private bool ItemMatches(ListViewItem item, string text)
