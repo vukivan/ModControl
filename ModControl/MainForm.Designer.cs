@@ -308,7 +308,7 @@ namespace ModControl
             // SearchBox
             //
             this.searchBox.Location = new Point(175, 0);
-            this.searchBox.KeyDown += new KeyEventHandler(Txt_Search_KeyDown);
+            this.searchBox.KeyUp += new KeyEventHandler(Txt_Search_KeyUp);
             this.searchBox.Width = 300;
             this.searchBox.PlaceholderText = "Jump to...";
 

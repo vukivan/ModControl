@@ -12,6 +12,7 @@ namespace ModControl
         private string Status;
         private readonly string modDesc;
         private readonly string size;
+        private readonly string categories;
 
         public string GetFileName()
         {
@@ -46,6 +47,11 @@ namespace ModControl
         public string GetSize()
         {
             return this.size;
+        }
+
+        public string GetCategories()
+        {
+            return this.categories;
         }
 
         public ModStatus GetModStatus()
@@ -95,6 +101,7 @@ namespace ModControl
             this.SetModStatus(ModStatus.Inactive);
             this.modDesc = Properties.desc;
             this.size = Properties.size;
+            this.categories = Properties.categories;
         }
         
     }

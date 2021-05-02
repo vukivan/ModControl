@@ -144,8 +144,8 @@ namespace ModControl
 
         private void AddModListViewItem(Mod mod)
         {
-            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetSize(), mod.GetFileName() });
-            item.ToolTipText = mod.GetFileName();
+            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetSize(), mod.GetFileName(), mod.GetCategories()});
+            item.ToolTipText = mod.GetFileName() + "\n" + mod.GetCategories();
             this.modListView.Items.Add(item);
             this.backupModList.Add((ListViewItem)item.Clone());
         }
@@ -270,6 +270,7 @@ namespace ModControl
             string version;
             string icon;
             string desc;
+            string categories = "";
             XDocument modDescXml;
             //Open Zip, get info.
             using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + fileName, ZipArchiveMode.Read);
@@ -305,7 +306,34 @@ namespace ModControl
                         {
                             desc = @modDescXml.Element("modDesc").Element("description").Value;
                         }
-                        return new ModProperties(fileName, title, author, version, icon, desc, size);
+                        if(modDescXml.Element("modDesc").Element("storeItems") != null)
+                        {
+                            List<XAttribute> storeItems = modDescXml.Element("modDesc").Element("storeItems").Elements("storeItem").Attributes("xmlFilename").ToList();
+                            foreach (XAttribute storeItem in storeItems)
+                            {
+                                ZipArchiveEntry storeItemEntry = archive.GetEntry(storeItem.Value);
+                                if (storeItemEntry != null)
+                                {
+                                    StreamReader storeItemReader = new StreamReader(storeItemEntry.Open());
+                                    try
+                                    {
+                                        XDocument storeItemXml = XDocument.Load(storeItemReader);
+                                        if (storeItemXml.Element("vehicle") != null)
+                                            categories += storeItemXml.Element("vehicle").Element("storeData").Element("category").Value + " ";
+                                        else if (storeItemXml.Element("placeable") != null)
+                                            categories += storeItemXml.Element("placeable").Element("storeData").Element("category").Value + " ";
+                                        else
+                                            categories += storeItemXml.Element("handTool").Element("storeData").Element("category").Value + " ";
+
+                                    }
+                                    catch (XmlException e)
+                                    {
+                                        //
+                                    }
+                                }
+                            }
+                        }
+                        return new ModProperties(fileName, title, author, version, icon, desc, size, categories);
                     }
                     catch (XmlException e)
                     {
@@ -314,7 +342,7 @@ namespace ModControl
                          *   +e.Message+"\n\nMod control will only load file name reference.\n" +
                          *   "Mod title, author and version will be unknown");
                          */
-                        return new ModProperties(fileName, fileName, "???", "???", "???", "???", size);
+                        return new ModProperties(fileName, fileName, "???", "???", "???", "???", size, categories);
                     }
                 }
             }
@@ -493,32 +521,37 @@ namespace ModControl
             }
         }
 
-        private void Txt_Search_KeyDown(object sender, KeyEventArgs e)
+        private void Txt_Search_KeyUp(object sender, KeyEventArgs e)
         {
             //TODO: refactor this so that it actually filters
             //Save list somewhere else, not in this method
             //restore backup to view
             //delete everything that doesn't mach criteria.
             //if search empty, just restore backup
-            if (searchBox.Text.Equals(""))
+            if(modsList.Count > 0)
             {
-                this.modListView.BeginUpdate();
-                ReloadListView();
-                this.modListView.EndUpdate();
-            } else if (backupModList.Count>0 && searchBox.Text.Length > 0)
-            {
-                this.modListView.BeginUpdate();
-                ReloadListView();
-                for (int i = this.modListView.Items.Count - 1; i >= 0; i--) 
+                if (searchBox.Text.Equals(""))
                 {
-                    ListViewItem currentItem = this.modListView.Items[i];
-                    if (!this.ItemMatches(currentItem, searchBox.Text))
-                    {
-                        this.modListView.Items.RemoveAt(i);
-                    }
+                    this.modListView.BeginUpdate();
+                    ReloadListView();
+                    this.modListView.EndUpdate();
                 }
-                this.modListView.EndUpdate();
+                else if (backupModList.Count > 0 && searchBox.Text.Length > 0)
+                {
+                    this.modListView.BeginUpdate();
+                    ReloadListView();
+                    for (int i = this.modListView.Items.Count - 1; i >= 0; i--)
+                    {
+                        ListViewItem currentItem = this.modListView.Items[i];
+                        if (!this.ItemMatches(currentItem, searchBox.Text))
+                        {
+                            this.modListView.Items.RemoveAt(i);
+                        }
+                    }
+                    this.modListView.EndUpdate();
+                }
             }
+            
         }
 
         private bool ItemMatches(ListViewItem item, string text)
