@@ -100,6 +100,7 @@ namespace ModControl
         {
             int modCount = 0;
             this.modListView.Items.Clear();
+            this.backupModList.Clear();
             modsList.Clear();
             DirectoryInfo directoryInfo = new(activeModDirectory);
             FileInfo[] activatedModFiles = directoryInfo.GetFiles("*.zip");
@@ -203,6 +204,7 @@ namespace ModControl
         private void DeactivateAllToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
             //disable if game is started
+            ReloadListView();
             foreach (ListViewItem item in this.modListView.Items)
             {
                 Mod mod = FindModByFileName(item.SubItems[FILE_NAME_COLUMN].Text);
