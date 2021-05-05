@@ -321,12 +321,18 @@ namespace ModControl
                                     try
                                     {
                                         XDocument storeItemXml = XDocument.Load(storeItemReader);
+                                        string newCat;
                                         if (storeItemXml.Element("vehicle") != null)
-                                            categories += storeItemXml.Element("vehicle").Element("storeData").Element("category").Value + " ";
+                                            newCat = storeItemXml.Element("vehicle").Element("storeData").Element("category").Value;
                                         else if (storeItemXml.Element("placeable") != null)
-                                            categories += storeItemXml.Element("placeable").Element("storeData").Element("category").Value + " ";
+                                            newCat = storeItemXml.Element("placeable").Element("storeData").Element("category").Value;
                                         else
-                                            categories += storeItemXml.Element("handTool").Element("storeData").Element("category").Value + " ";
+                                            newCat = storeItemXml.Element("handTool").Element("storeData").Element("category").Value;
+
+                                        if (!categories.Contains(newCat))
+                                        {
+                                            categories += newCat + " ";
+                                        }
 
                                     }
                                     catch (XmlException e)
