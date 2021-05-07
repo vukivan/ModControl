@@ -387,6 +387,33 @@ namespace ModControl
             }
         }
 
+        private void ModListView_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && modListView.SelectedItems.Count == 1)
+            {
+                var focusedItem = modListView.FocusedItem;
+                ContextMenuStrip modListContextMenuStrip = new ContextMenuStrip();
+                modListContextMenuStrip.ShowImageMargin = false;
+                if(focusedItem.SubItems[STATUS_COLUMN].Text.Equals("Inactive")) {
+                    ToolStripMenuItem toolStripMenuItem = new ToolStripMenuItem("Activate");
+                    toolStripMenuItem.Click += (sender, e) => ActivateMod(focusedItem);
+                    modListContextMenuStrip.Items.Add(toolStripMenuItem);
+                    modListContextMenuStrip.Enabled = true;
+                } 
+                else
+                {
+                    ToolStripMenuItem toolStripMenuItem = new ToolStripMenuItem("Deactivate");
+                    toolStripMenuItem.Click += (sender, e) => DeactivateMod(focusedItem);
+                    modListContextMenuStrip.Items.Add(toolStripMenuItem);
+                    modListContextMenuStrip.Enabled = true;
+                }
+                if (focusedItem != null && focusedItem.Bounds.Contains(e.Location))
+                {
+                    modListContextMenuStrip.Show(Cursor.Position);
+                }
+            }
+        }
+
         private void GetModPreview (Mod mod)
         {
             using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);

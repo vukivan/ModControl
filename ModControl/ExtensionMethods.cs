@@ -1,29 +1,31 @@
 ﻿using System.Windows.Forms;
 
-// Important ! Create the ExtensionMethods class as a "public static" class
-public static class ExtensionMethods
+namespace ModControl
 {
-    public static void EnableContextMenu(this RichTextBox rtb)
+    public static class ExtensionMethods
     {
-        if (rtb.ContextMenuStrip == null)
+        public static void EnableModDescriptionContextMenu(this RichTextBox richTextBox)
         {
-            // Create a ContextMenuStrip without icons
-            ContextMenuStrip cms = new ContextMenuStrip();
-            cms.ShowImageMargin = false;
-
-            // Add the Copy option (copies the selected text inside the richtextbox)
-            ToolStripMenuItem tsmiCopy = new ToolStripMenuItem("Copy");
-            tsmiCopy.Click += (sender, e) => rtb.Copy();
-            cms.Items.Add(tsmiCopy);
-
-            // When opening the menu, check if the condition is fulfilled 
-            // in order to enable the action
-            cms.Opening += (sender, e) =>
+            if (richTextBox.ContextMenuStrip == null)
             {
-                tsmiCopy.Enabled = rtb.SelectionLength > 0;
-            };
+                // Create a ContextMenuStrip without icons
+                ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
+                contextMenuStrip.ShowImageMargin = false;
 
-            rtb.ContextMenuStrip = cms;
+                // Add the Copy option (copies the selected text inside the richtextbox)
+                ToolStripMenuItem toolStripMenuItem = new ToolStripMenuItem("Copy");
+                toolStripMenuItem.Click += (sender, e) => richTextBox.Copy();
+                contextMenuStrip.Items.Add(toolStripMenuItem);
+
+                // When opening the menu, check if the condition is fulfilled 
+                // in order to enable the action
+                contextMenuStrip.Opening += (sender, e) =>
+                {
+                    toolStripMenuItem.Enabled = richTextBox.SelectionLength > 0;
+                };
+
+                richTextBox.ContextMenuStrip = contextMenuStrip;
+            }
         }
     }
 }

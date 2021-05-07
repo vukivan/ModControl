@@ -310,6 +310,7 @@ namespace ModControl
             this.modListView.ColumnClick += new ColumnClickEventHandler(ColumnClick);
             this.modListView.ShowItemToolTips = true;
             this.modListView.ItemSelectionChanged += new ListViewItemSelectionChangedEventHandler(ModListView_ItemSelectionChanged);
+            this.modListView.MouseClick += new MouseEventHandler(ModListView_MouseClick);
 
             this.splitContainer.Panel2.Controls.Add(rightSplitContainer);
             //
@@ -327,7 +328,7 @@ namespace ModControl
             this.modDescTextBox.AcceptsTab = true;
             this.modDescTextBox.Name = "modDescTextBox";
             this.modDescTextBox.ScrollBars = RichTextBoxScrollBars.Vertical;
-            this.modDescTextBox.EnableContextMenu();
+            this.modDescTextBox.EnableModDescriptionContextMenu();
 
             this.rightSplitContainer.Panel2.Controls.Add(modDescTextBox);
 
