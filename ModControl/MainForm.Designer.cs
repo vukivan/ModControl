@@ -36,6 +36,14 @@ namespace ModControl
         private List<ListViewItem> backupModList = new List<ListViewItem>();
         private PictureBox pictureBox;
         private RichTextBox modDescTextBox;
+        private readonly Keys KEY_LOAD_DEFAULT = ((Keys)((Keys.Control | Keys.L)));
+        private readonly Keys KEY_ACTIVATE = ((Keys)((Keys.Control | Keys.Add)));
+        private readonly Keys KEY_DEACTIVATE = ((Keys)((Keys.Control | Keys.Subtract)));
+        private readonly Keys KEY_RELOAD = ((Keys)((Keys.Control | Keys.R)));
+        private readonly Keys KEY_SELECT_ALL = ((Keys)((Keys.Control | Keys.A)));
+        private readonly Keys KEY_DESELECT_ALL = ((Keys)((Keys.Control | Keys.Shift | Keys.A)));
+        private readonly Keys KEY_SAVE_PACKAGE = ((Keys)((Keys.Control | Keys.S)));
+        private readonly Keys KEY_LOAD_PACKAGE = ((Keys)((Keys.Control | Keys.P)));
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -135,7 +143,7 @@ namespace ModControl
             // 
             this.loadToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.L)));
+            this.loadToolStripMenuItem.ShortcutKeys = KEY_LOAD_DEFAULT;
             this.loadToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.loadToolStripMenuItem.Text = "&Load Default Mod Directory";
             this.loadToolStripMenuItem.ToolTipText = "Load mods from game default mod directory";
@@ -154,7 +162,7 @@ namespace ModControl
             // 
             this.activateToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.activateToolStripMenuItem.Name = "activateToolStripMenuItem";
-            this.activateToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.A)));
+            this.activateToolStripMenuItem.ShortcutKeys = KEY_ACTIVATE;
             this.activateToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.activateToolStripMenuItem.Text = "&Activate Selected";
             this.activateToolStripMenuItem.Click += new System.EventHandler(this.ActivateToolStripMenuItem_ItemClicked);
@@ -164,7 +172,7 @@ namespace ModControl
             // 
             this.deactivateToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.deactivateToolStripMenuItem.Name = "deactivateToolStripMenuItem";
-            this.deactivateToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.D)));
+            this.deactivateToolStripMenuItem.ShortcutKeys = KEY_DEACTIVATE;
             this.deactivateToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.deactivateToolStripMenuItem.Text = "&Deactivate Selected";
             this.deactivateToolStripMenuItem.Click += new System.EventHandler(this.DeactivateToolStripMenuItem_ItemClicked);
@@ -183,7 +191,7 @@ namespace ModControl
             // 
             this.reloadToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.reloadToolStripMenuItem.Name = "reloadToolStripMenuItem";
-            this.reloadToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.R)));
+            this.reloadToolStripMenuItem.ShortcutKeys = KEY_RELOAD;
             this.reloadToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.reloadToolStripMenuItem.Text = "&Reload";
             this.reloadToolStripMenuItem.Click += new System.EventHandler(this.ReloadToolStripMenuItem_ItemClicked);
@@ -193,7 +201,7 @@ namespace ModControl
             // 
             this.selectAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.A)));
+            this.selectAllToolStripMenuItem.ShortcutKeys = KEY_SELECT_ALL;
             this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.selectAllToolStripMenuItem.Text = "&Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItem_ItemClicked);
@@ -203,7 +211,7 @@ namespace ModControl
             // 
             this.deselectAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.deselectAllToolStripMenuItem.Name = "deselectAllToolStripMenuItem";
-            this.deselectAllToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.E)));
+            this.deselectAllToolStripMenuItem.ShortcutKeys = KEY_DESELECT_ALL;
             this.deselectAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.deselectAllToolStripMenuItem.Text = "&Deslect All";
             this.deselectAllToolStripMenuItem.Click += new System.EventHandler(this.DeselectAllToolStripMenuItem_ItemClicked);
@@ -220,7 +228,7 @@ namespace ModControl
             // 
             this.savePackageToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.savePackageToolStripMenuItem.Name = "savePackageToolStripMenuItem";
-            this.savePackageToolStripMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.S)));
+            this.savePackageToolStripMenuItem.ShortcutKeys = KEY_SAVE_PACKAGE;
             this.savePackageToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.savePackageToolStripMenuItem.Text = "&Save Active";
             this.savePackageToolStripMenuItem.Click += new System.EventHandler(this.SavePackageToolStripMenuItem_ItemClicked);
@@ -229,7 +237,7 @@ namespace ModControl
             // 
             this.loadPackageToolStropMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.loadPackageToolStropMenuItem.Name = "loadPackageToolStropMenuItem";
-            this.loadPackageToolStropMenuItem.ShortcutKeys = ((Keys)((Keys.Control | Keys.Shift | Keys.S)));
+            this.loadPackageToolStropMenuItem.ShortcutKeys = KEY_LOAD_PACKAGE;
             this.loadPackageToolStropMenuItem.Size = new System.Drawing.Size(217, 22);
             this.loadPackageToolStropMenuItem.Text = "&Load Package";
             this.loadPackageToolStropMenuItem.Click += new System.EventHandler(this.LoadPackageToolStripMenuItem_ItemClicked);
@@ -319,6 +327,7 @@ namespace ModControl
             this.modDescTextBox.AcceptsTab = true;
             this.modDescTextBox.Name = "modDescTextBox";
             this.modDescTextBox.ScrollBars = RichTextBoxScrollBars.Vertical;
+            this.modDescTextBox.EnableContextMenu();
 
             this.rightSplitContainer.Panel2.Controls.Add(modDescTextBox);
 

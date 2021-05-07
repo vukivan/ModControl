@@ -226,17 +226,25 @@ namespace ModControl
                     File.Move(Path.Combine(activeModDirectory, mod.GetFileName()), Path.Combine(activeModDirectory, newModFileName), false);
                 } catch (IOException e)
                 {
-                    if ( File.Exists(Path.Combine(activeModDirectory, newModFileName)))
+                    if (e.InnerException is UnauthorizedAccessException)
                     {
-                        MessageBox.Show("It appears that " + newModFileName + " exists as both active and inactive mod\n" +
-                            "Please remove duplicate and then reload mod directory");
-                        return;
+                        MessageBox.Show("Unable to rename " + mod.GetFileName() + " to " + newModFileName + "\nEither destination file already exists, or inactive mod files are opened by a different program.");
                     }
+                    else if (e.InnerException is FileNotFoundException)
+                    {
+                        MessageBox.Show("File " + mod.GetFileName() + " not found.\nCheck if it was deleted or renamed elsewhere, and then reload.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to activate " + mod.GetFileName() + ", reason unknown.\nCheck the file and reload mods.");
+                    }
+                    return;
                 }
                 mod.SetModFileName(newModFileName);
                 mod.SetModStatus(ModStatus.Active);
                 item.SubItems[STATUS_COLUMN].Text = mod.GetModStatusString();
                 item.SubItems[FILE_NAME_COLUMN].Text = newModFileName;
+                item.Checked = false;
             }
         }
 
@@ -245,24 +253,32 @@ namespace ModControl
             Mod mod = FindModByFileName(item.SubItems[FILE_NAME_COLUMN].Text);
             if (mod != null && mod.GetModStatus() == ModStatus.Active && File.Exists(Path.Combine(activeModDirectory, mod.GetFileName())))
             {
-                string newModName = mod.GetFileName() + ".deactivated";
+                string newModFileName = mod.GetFileName() + ".deactivated";
                 try
                 {
-                    File.Move(Path.Combine(activeModDirectory, mod.GetFileName()), Path.Combine(activeModDirectory, newModName), false);
+                    File.Move(Path.Combine(activeModDirectory, mod.GetFileName()), Path.Combine(activeModDirectory, newModFileName), false);
                 }
                 catch (IOException e)
                 {
-                    if (File.Exists(Path.Combine(activeModDirectory, newModName)))
+                    if (e.InnerException is UnauthorizedAccessException)
                     {
-                        MessageBox.Show("It appears that " + mod.GetFileName() + " exists as both active and inactive mod\n" +
-                            "Please remove duplicate and then reload mod directory");
-                        return;
+                        MessageBox.Show("Unable to rename " + mod.GetFileName() + " to " + newModFileName + "\nEither destination file already exists, or active mod files are opened by a different program.");
                     }
+                    else if (e.InnerException is FileNotFoundException)
+                    {
+                        MessageBox.Show("File " + mod.GetFileName() + " not found.\nCheck if it was deleted or renamed elsewhere, and then reload.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to deactivate " + mod.GetFileName() + ", reason unknown.\nCheck the file and reload mods.");
+                    }
+                    return;
                 }
-                mod.SetModFileName(newModName);
+                mod.SetModFileName(newModFileName);
                 mod.SetModStatus(ModStatus.Inactive);
                 item.SubItems[STATUS_COLUMN].Text = mod.GetModStatusString();
-                item.SubItems[FILE_NAME_COLUMN].Text = newModName;
+                item.SubItems[FILE_NAME_COLUMN].Text = newModFileName;
+                item.Checked = false;
             }
         }
 
@@ -275,84 +291,76 @@ namespace ModControl
             string desc;
             string categories = "";
             XDocument modDescXml;
-            //Open Zip, get info.
             using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + fileName, ZipArchiveMode.Read);
-            FileInfo fileInfo = new FileInfo(activeModDirectory + "/" + fileName);
+            FileInfo fileInfo = new(activeModDirectory + "/" + fileName);
             string size = fileInfo.Length.ToString();
             ZipArchiveEntry entry = archive.GetEntry("modDesc.xml");
             if (entry != null)
             {
-                //System.Diagnostics.Debug.WriteLine("Loading mod:" + FileName);
-                using (StreamReader reader = new StreamReader(entry.Open()))
+                using StreamReader reader = new StreamReader(entry.Open());
+                try
                 {
-                    try
+                    modDescXml = XDocument.Load(reader);
+                    author = modDescXml.Element("modDesc").Element("author").Value.Trim();
+                    XElement titleXElement = modDescXml.Element("modDesc").Element("title").Element("en");
+                    if (titleXElement != null)
                     {
-                        modDescXml = XDocument.Load(reader);
-                        author = modDescXml.Element("modDesc").Element("author").Value.Trim();
-                        XElement titleXElement = modDescXml.Element("modDesc").Element("title").Element("en");
-                        if (titleXElement != null)
+                        title = titleXElement.Value.Trim();
+                    }
+                    else
+                    {
+                        title = modDescXml.Element("modDesc").Element("title").Value.Trim();
+                    }
+                    icon = modDescXml.Element("modDesc").Element("iconFilename").Value.Trim();
+                    version = modDescXml.Element("modDesc").Element("version").Value.Trim();
+                    XElement descXElement = modDescXml.Element("modDesc").Element("description").Element("en");
+                    if (descXElement != null)
+                    {
+                        desc = @descXElement.Value;
+                    }
+                    else
+                    {
+                        desc = @modDescXml.Element("modDesc").Element("description").Value;
+                    }
+                    if (modDescXml.Element("modDesc").Element("storeItems") != null)
+                    {
+                        List<XAttribute> storeItems = modDescXml.Element("modDesc").Element("storeItems").Elements("storeItem").Attributes("xmlFilename").ToList();
+                        foreach (XAttribute storeItem in storeItems)
                         {
-                            title = titleXElement.Value.Trim();
-                        }
-                        else
-                        {
-                            title = modDescXml.Element("modDesc").Element("title").Value.Trim();
-                        }
-                        icon = modDescXml.Element("modDesc").Element("iconFilename").Value.Trim();
-                        version = modDescXml.Element("modDesc").Element("version").Value.Trim();
-                        XElement descXElement = modDescXml.Element("modDesc").Element("description").Element("en");
-                        if (descXElement != null)
-                        {
-                            desc = @descXElement.Value;
-                        }
-                        else
-                        {
-                            desc = @modDescXml.Element("modDesc").Element("description").Value;
-                        }
-                        if(modDescXml.Element("modDesc").Element("storeItems") != null)
-                        {
-                            List<XAttribute> storeItems = modDescXml.Element("modDesc").Element("storeItems").Elements("storeItem").Attributes("xmlFilename").ToList();
-                            foreach (XAttribute storeItem in storeItems)
+                            ZipArchiveEntry storeItemEntry = archive.GetEntry(storeItem.Value);
+                            if (storeItemEntry != null)
                             {
-                                ZipArchiveEntry storeItemEntry = archive.GetEntry(storeItem.Value);
-                                if (storeItemEntry != null)
+                                StreamReader storeItemReader = new StreamReader(storeItemEntry.Open());
+                                try
                                 {
-                                    StreamReader storeItemReader = new StreamReader(storeItemEntry.Open());
-                                    try
-                                    {
-                                        XDocument storeItemXml = XDocument.Load(storeItemReader);
-                                        string newCat;
-                                        if (storeItemXml.Element("vehicle") != null)
-                                            newCat = storeItemXml.Element("vehicle").Element("storeData").Element("category").Value;
-                                        else if (storeItemXml.Element("placeable") != null)
-                                            newCat = storeItemXml.Element("placeable").Element("storeData").Element("category").Value;
-                                        else
-                                            newCat = storeItemXml.Element("handTool").Element("storeData").Element("category").Value;
+                                    XDocument storeItemXml = XDocument.Load(storeItemReader);
+                                    string newCat;
+                                    if (storeItemXml.Element("vehicle") != null)
+                                        newCat = storeItemXml.Element("vehicle").Element("storeData").Element("category").Value;
+                                    else if (storeItemXml.Element("placeable") != null)
+                                        newCat = storeItemXml.Element("placeable").Element("storeData").Element("category").Value;
+                                    else
+                                        newCat = storeItemXml.Element("handTool").Element("storeData").Element("category").Value;
 
-                                        if (!categories.Contains(newCat))
-                                        {
-                                            categories += newCat + " ";
-                                        }
-
-                                    }
-                                    catch (XmlException e)
+                                    if (!categories.Contains(newCat))
                                     {
-                                        //
+                                        categories += newCat + " ";
                                     }
+
+                                }
+                                catch
+                                {
+                                    // don't need to handle this, likely mallformed XML, just skip category checker.
                                 }
                             }
                         }
-                        return new ModProperties(fileName, title, author, version, icon, desc, size, categories);
                     }
-                    catch (XmlException e)
-                    {
-                        /*
-                         *MessageBox.Show(fileName + "/modDesc.xml is not a valid XML file.\n\n"
-                         *   +e.Message+"\n\nMod control will only load file name reference.\n" +
-                         *   "Mod title, author and version will be unknown");
-                         */
-                        return new ModProperties(fileName, fileName, "???", "???", "???", "???", size, categories);
-                    }
+                    return new ModProperties(fileName, title, author, version, icon, desc, size, categories);
+                }
+                catch
+                {
+                    //Likely malformed XML, best effort is just to put the filename into the list, modcontrol can still handle it.
+                    return new ModProperties(fileName, fileName, "???", "???", "???", "???", size, categories);
                 }
             }
             else
