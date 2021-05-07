@@ -428,9 +428,7 @@ namespace ModControl
             {
                 ContextMenuStrip modListContextMenuStrip = new ContextMenuStrip();
                 modListContextMenuStrip.ShowImageMargin = false;
-                ToolStripMenuItem reloadToolStripMenuItem = new ToolStripMenuItem("Activate selected mods");
-                reloadToolStripMenuItem.Click += new EventHandler(ReloadToolStripMenuItem_ItemClicked);
-                modListContextMenuStrip.Items.Add(reloadToolStripMenuItem);
+                
                 if (modListView.SelectedItems.Count == 1)
                 {
                     var focusedItem = modListView.FocusedItem;
@@ -485,6 +483,9 @@ namespace ModControl
                 ToolStripMenuItem deactivateAllToolStripMenuItem = new ToolStripMenuItem("Deactivate all");
                 deactivateAllToolStripMenuItem.Click += new EventHandler(DeactivateAllToolStripMenuItem_ItemClicked);
                 modListContextMenuStrip.Items.Add(deactivateAllToolStripMenuItem);
+                ToolStripMenuItem reloadToolStripMenuItem = new ToolStripMenuItem("Reload mods");
+                reloadToolStripMenuItem.Click += new EventHandler(ReloadToolStripMenuItem_ItemClicked);
+                modListContextMenuStrip.Items.Add(reloadToolStripMenuItem);
 
 
                 modListContextMenuStrip.Show(Cursor.Position);
