@@ -145,7 +145,7 @@ namespace ModControl
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
             this.loadToolStripMenuItem.ShortcutKeys = KEY_LOAD_DEFAULT;
             this.loadToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.loadToolStripMenuItem.Text = "&Load Default Mod Directory";
+            this.loadToolStripMenuItem.Text = "&Load default mod directory";
             this.loadToolStripMenuItem.ToolTipText = "Load mods from game default mod directory";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.LoadToolStripMenuItem_ItemClicked);
             // 
@@ -154,7 +154,7 @@ namespace ModControl
             this.loadCustomToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.loadCustomToolStripMenuItem.Name = "loadCustomToolStripMenuItem";
             this.loadCustomToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.loadCustomToolStripMenuItem.Text = "&Load Custom Mod Directory";
+            this.loadCustomToolStripMenuItem.Text = "&Load custom mod directory";
             this.loadCustomToolStripMenuItem.ToolTipText = "Load mods from a directory of your choice";
             this.loadCustomToolStripMenuItem.Click += new System.EventHandler(this.LoadCustomToolStripMenuItem_ItemClicked);
             // 
@@ -164,7 +164,7 @@ namespace ModControl
             this.activateToolStripMenuItem.Name = "activateToolStripMenuItem";
             this.activateToolStripMenuItem.ShortcutKeys = KEY_ACTIVATE;
             this.activateToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.activateToolStripMenuItem.Text = "&Activate Selected";
+            this.activateToolStripMenuItem.Text = "&Activate checked mods";
             this.activateToolStripMenuItem.Click += new System.EventHandler(this.ActivateToolStripMenuItem_ItemClicked);
             this.activateToolStripMenuItem.Enabled = false;
             // 
@@ -174,7 +174,7 @@ namespace ModControl
             this.deactivateToolStripMenuItem.Name = "deactivateToolStripMenuItem";
             this.deactivateToolStripMenuItem.ShortcutKeys = KEY_DEACTIVATE;
             this.deactivateToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.deactivateToolStripMenuItem.Text = "&Deactivate Selected";
+            this.deactivateToolStripMenuItem.Text = "&Deactivate checked mods";
             this.deactivateToolStripMenuItem.Click += new System.EventHandler(this.DeactivateToolStripMenuItem_ItemClicked);
             this.deactivateToolStripMenuItem.Enabled = false;
             // 
@@ -183,7 +183,7 @@ namespace ModControl
             this.deactivateAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.deactivateAllToolStripMenuItem.Name = "deactivateAllToolStripMenuItem";
             this.deactivateAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.deactivateAllToolStripMenuItem.Text = "&Deactivate All";
+            this.deactivateAllToolStripMenuItem.Text = "&Deactivate all";
             this.deactivateAllToolStripMenuItem.Click += new System.EventHandler(this.DeactivateAllToolStripMenuItem_ItemClicked);
             this.deactivateAllToolStripMenuItem.Enabled = false;
             // 
@@ -203,7 +203,7 @@ namespace ModControl
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
             this.selectAllToolStripMenuItem.ShortcutKeys = KEY_SELECT_ALL;
             this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.selectAllToolStripMenuItem.Text = "&Select All";
+            this.selectAllToolStripMenuItem.Text = "&Select all";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItem_ItemClicked);
             this.selectAllToolStripMenuItem.Enabled = false;
             // 
@@ -213,7 +213,7 @@ namespace ModControl
             this.deselectAllToolStripMenuItem.Name = "deselectAllToolStripMenuItem";
             this.deselectAllToolStripMenuItem.ShortcutKeys = KEY_DESELECT_ALL;
             this.deselectAllToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.deselectAllToolStripMenuItem.Text = "&Deslect All";
+            this.deselectAllToolStripMenuItem.Text = "&Deselect all";
             this.deselectAllToolStripMenuItem.Click += new System.EventHandler(this.DeselectAllToolStripMenuItem_ItemClicked);
             this.deselectAllToolStripMenuItem.Enabled = false;
             // 
@@ -230,7 +230,7 @@ namespace ModControl
             this.savePackageToolStripMenuItem.Name = "savePackageToolStripMenuItem";
             this.savePackageToolStripMenuItem.ShortcutKeys = KEY_SAVE_PACKAGE;
             this.savePackageToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.savePackageToolStripMenuItem.Text = "&Save Active";
+            this.savePackageToolStripMenuItem.Text = "&Save active";
             this.savePackageToolStripMenuItem.Click += new System.EventHandler(this.SavePackageToolStripMenuItem_ItemClicked);
             // 
             // loadPackageToolStropMenuItem
@@ -239,7 +239,7 @@ namespace ModControl
             this.loadPackageToolStropMenuItem.Name = "loadPackageToolStropMenuItem";
             this.loadPackageToolStropMenuItem.ShortcutKeys = KEY_LOAD_PACKAGE;
             this.loadPackageToolStropMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.loadPackageToolStropMenuItem.Text = "&Load Package";
+            this.loadPackageToolStropMenuItem.Text = "&Load package";
             this.loadPackageToolStropMenuItem.Click += new System.EventHandler(this.LoadPackageToolStripMenuItem_ItemClicked);
             // 
             // helpToolStripMenuItem

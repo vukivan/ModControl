@@ -166,7 +166,7 @@ namespace ModControl
             }
             else
             {
-                MessageBox.Show("No items selected!");
+                MessageBox.Show("No items checked!");
             }
             
         }
@@ -178,6 +178,42 @@ namespace ModControl
             if (checkedMods.Count > 0)
             {
                 foreach (ListViewItem checkedItem in checkedMods)
+                {
+                    DeactivateMod(checkedItem);
+                }
+            }
+            else
+            {
+                MessageBox.Show("No items checked!");
+            }
+
+        }
+
+        private void ActivateSelectedToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            //Detect if game is running and show message box that activated mods will not be seen until game restarts
+            ListView.SelectedListViewItemCollection selectedMods = modListView.SelectedItems;
+            if (selectedMods.Count > 0)
+            {
+                foreach (ListViewItem checkedItem in selectedMods)
+                {
+                    ActivateMod(checkedItem);
+                }
+            }
+            else
+            {
+                MessageBox.Show("No items selected!");
+            }
+
+        }
+
+        private void DeactivateSelectedToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            //disable if game is started
+            ListView.SelectedListViewItemCollection selectedMods = modListView.SelectedItems;
+            if (selectedMods.Count > 0)
+            {
+                foreach (ListViewItem checkedItem in selectedMods)
                 {
                     DeactivateMod(checkedItem);
                 }
@@ -211,6 +247,7 @@ namespace ModControl
                 if(mod.GetModStatus() == ModStatus.Active)
                 {
                     DeactivateMod(item);
+                    item.Checked = false;
                 }
 
             }
@@ -244,7 +281,6 @@ namespace ModControl
                 mod.SetModStatus(ModStatus.Active);
                 item.SubItems[STATUS_COLUMN].Text = mod.GetModStatusString();
                 item.SubItems[FILE_NAME_COLUMN].Text = newModFileName;
-                item.Checked = false;
             }
         }
 
@@ -278,7 +314,6 @@ namespace ModControl
                 mod.SetModStatus(ModStatus.Inactive);
                 item.SubItems[STATUS_COLUMN].Text = mod.GetModStatusString();
                 item.SubItems[FILE_NAME_COLUMN].Text = newModFileName;
-                item.Checked = false;
             }
         }
 
@@ -389,28 +424,67 @@ namespace ModControl
 
         private void ModListView_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right && modListView.SelectedItems.Count == 1)
+            if (e.Button == MouseButtons.Right)
             {
-                var focusedItem = modListView.FocusedItem;
                 ContextMenuStrip modListContextMenuStrip = new ContextMenuStrip();
                 modListContextMenuStrip.ShowImageMargin = false;
-                if(focusedItem.SubItems[STATUS_COLUMN].Text.Equals("Inactive")) {
-                    ToolStripMenuItem toolStripMenuItem = new ToolStripMenuItem("Activate");
-                    toolStripMenuItem.Click += (sender, e) => ActivateMod(focusedItem);
-                    modListContextMenuStrip.Items.Add(toolStripMenuItem);
-                    modListContextMenuStrip.Enabled = true;
-                } 
-                else
+                if (modListView.SelectedItems.Count == 1)
                 {
-                    ToolStripMenuItem toolStripMenuItem = new ToolStripMenuItem("Deactivate");
-                    toolStripMenuItem.Click += (sender, e) => DeactivateMod(focusedItem);
-                    modListContextMenuStrip.Items.Add(toolStripMenuItem);
-                    modListContextMenuStrip.Enabled = true;
+                    var focusedItem = modListView.FocusedItem;
+                    
+                    if (focusedItem.SubItems[STATUS_COLUMN].Text.Equals("Inactive"))
+                    {
+                        ToolStripMenuItem activationToolStripMenuItem = new ToolStripMenuItem("Activate selected item");
+                        activationToolStripMenuItem.Click += (sender, e) => ActivateMod(focusedItem);
+                        modListContextMenuStrip.Items.Add(activationToolStripMenuItem);
+                        modListContextMenuStrip.Items.Add(new ToolStripSeparator());
+                    }
+                    else
+                    {
+                        ToolStripMenuItem activationToolStripMenuItem = new ToolStripMenuItem("Deactivate selected item");
+                        activationToolStripMenuItem.Click += (sender, e) => DeactivateMod(focusedItem);
+                        modListContextMenuStrip.Items.Add(activationToolStripMenuItem);
+                        modListContextMenuStrip.Items.Add(new ToolStripSeparator());
+                    }
                 }
-                if (focusedItem != null && focusedItem.Bounds.Contains(e.Location))
+                else if (modListView.SelectedItems.Count > 1)
                 {
-                    modListContextMenuStrip.Show(Cursor.Position);
+                    var selectedItems = modListView.SelectedItems;
+                    
+                    ToolStripMenuItem activationToolStripMenuItem = new ToolStripMenuItem("Activate selected mods");
+                    activationToolStripMenuItem.Click += new EventHandler(ActivateSelectedToolStripMenuItem_ItemClicked);
+                    modListContextMenuStrip.Items.Add(activationToolStripMenuItem);
+                    ToolStripMenuItem deactivationToolStripMenuItem = new ToolStripMenuItem("Deactivate selected mods");
+                    deactivationToolStripMenuItem.Click += new EventHandler(DeactivateSelectedToolStripMenuItem_ItemClicked);
+                    modListContextMenuStrip.Items.Add(deactivationToolStripMenuItem);
+                    modListContextMenuStrip.Items.Add(new ToolStripSeparator());
                 }
+                if (modListView.CheckedItems.Count >= 1)
+                {
+                    ToolStripMenuItem activationToolStripMenuItem = new ToolStripMenuItem("Activate checked mods");
+                    activationToolStripMenuItem.Click += new EventHandler(ActivateToolStripMenuItem_ItemClicked);
+                    modListContextMenuStrip.Items.Add(activationToolStripMenuItem);
+                    ToolStripMenuItem deactivationToolStripMenuItem = new ToolStripMenuItem("Deactivate checked mods");
+                    deactivationToolStripMenuItem.Click += new EventHandler(DeactivateToolStripMenuItem_ItemClicked);
+                    modListContextMenuStrip.Items.Add(deactivationToolStripMenuItem);
+                    modListContextMenuStrip.Items.Add(new ToolStripSeparator());
+
+                }
+                ToolStripMenuItem selectAllToolStripMenuItem = new ToolStripMenuItem("Select all");
+                selectAllToolStripMenuItem.Click += (sender, e) => modListView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = true);
+                modListContextMenuStrip.Items.Add(selectAllToolStripMenuItem);
+                modListContextMenuStrip.Enabled = true;
+                ToolStripMenuItem deselectAllToolStripMenuItem = new ToolStripMenuItem("Deselect all");
+                deselectAllToolStripMenuItem.Click += (sender, e) => modListView.Items.OfType<ListViewItem>().ToList().ForEach(item => item.Checked = false);
+                modListContextMenuStrip.Items.Add(deselectAllToolStripMenuItem);
+                modListContextMenuStrip.Enabled = true;
+                modListContextMenuStrip.Items.Add(new ToolStripSeparator());
+                ToolStripMenuItem deactivateAllToolStripMenuItem = new ToolStripMenuItem("Deactivate all");
+                deactivateAllToolStripMenuItem.Click += new EventHandler(DeactivateAllToolStripMenuItem_ItemClicked);
+                modListContextMenuStrip.Items.Add(deactivateAllToolStripMenuItem);
+
+
+                modListContextMenuStrip.Show(Cursor.Position);
             }
         }
 
