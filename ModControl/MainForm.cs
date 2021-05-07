@@ -428,6 +428,9 @@ namespace ModControl
             {
                 ContextMenuStrip modListContextMenuStrip = new ContextMenuStrip();
                 modListContextMenuStrip.ShowImageMargin = false;
+                ToolStripMenuItem reloadToolStripMenuItem = new ToolStripMenuItem("Activate selected mods");
+                reloadToolStripMenuItem.Click += new EventHandler(ReloadToolStripMenuItem_ItemClicked);
+                modListContextMenuStrip.Items.Add(reloadToolStripMenuItem);
                 if (modListView.SelectedItems.Count == 1)
                 {
                     var focusedItem = modListView.FocusedItem;
