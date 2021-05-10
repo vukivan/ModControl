@@ -15,7 +15,8 @@ namespace ModControl
 {
     public partial class MainForm : Form
     {
-        private static readonly string defaultModDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\mods\");
+        private static readonly string fs19Directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\");
+        private static readonly string defaultModDirectory = Path.Combine(fs19Directory, @"mods\");
         private static string activeModDirectory;
         private static LinkedList<Mod> modsList = new LinkedList<Mod>();
         private static GCHandle handle;
@@ -48,7 +49,7 @@ namespace ModControl
                     Directory.CreateDirectory(activeModDirectory);
                 }
             }
-            
+
 
         }
 
@@ -67,7 +68,7 @@ namespace ModControl
             }
         }
 
-        private void EnableMenus ()
+        private void EnableMenus()
         {
             this.reloadToolStripMenuItem.Enabled = true;
             this.activateToolStripMenuItem.Enabled = true;
@@ -146,7 +147,7 @@ namespace ModControl
 
         private void AddModListViewItem(Mod mod)
         {
-            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetSize(), mod.GetFileName(), mod.GetCategories()});
+            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetSize(), mod.GetFileName(), mod.GetCategories() });
             item.ToolTipText = mod.GetFileName() + "\n" + mod.GetCategories();
             this.modListView.Items.Add(item);
             this.backupModList.Add((ListViewItem)item.Clone());
@@ -168,7 +169,7 @@ namespace ModControl
             {
                 MessageBox.Show("No items checked!");
             }
-            
+
         }
 
         private void DeactivateToolStripMenuItem_ItemClicked(object sender, EventArgs e)
@@ -227,7 +228,7 @@ namespace ModControl
 
         private static Mod FindModByFileName(string name)
         {
-            foreach(Mod mod in modsList)
+            foreach (Mod mod in modsList)
             {
                 if (mod.GetFileName().Equals(name))
                 {
@@ -244,7 +245,7 @@ namespace ModControl
             foreach (ListViewItem item in this.modListView.Items)
             {
                 Mod mod = FindModByFileName(item.SubItems[FILE_NAME_COLUMN].Text);
-                if(mod.GetModStatus() == ModStatus.Active)
+                if (mod.GetModStatus() == ModStatus.Active)
                 {
                     DeactivateMod(item);
                     item.Checked = false;
@@ -252,7 +253,7 @@ namespace ModControl
 
             }
         }
-        private void ActivateMod (ListViewItem item)
+        private void ActivateMod(ListViewItem item)
         {
             Mod mod = FindModByFileName(item.SubItems[FILE_NAME_COLUMN].Text);
             if (mod != null && mod.GetModStatus() == ModStatus.Inactive && File.Exists(Path.Combine(activeModDirectory, mod.GetFileName())))
@@ -261,7 +262,8 @@ namespace ModControl
                 try
                 {
                     File.Move(Path.Combine(activeModDirectory, mod.GetFileName()), Path.Combine(activeModDirectory, newModFileName), false);
-                } catch (IOException e)
+                }
+                catch (IOException e)
                 {
                     if (e.InnerException is UnauthorizedAccessException)
                     {
@@ -404,14 +406,14 @@ namespace ModControl
                 return null;
             }
 
-            
+
         }
 
         private void ModListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
             ListView.SelectedListViewItemCollection items = this.modListView.SelectedItems;
 
-            if(items.Count > 0)
+            if (items.Count > 0)
             {
                 Mod mod = FindModByFileName(items[0].SubItems[FILE_NAME_COLUMN].Text);
                 GetModPreview(mod);
@@ -428,11 +430,11 @@ namespace ModControl
             {
                 ContextMenuStrip modListContextMenuStrip = new ContextMenuStrip();
                 modListContextMenuStrip.ShowImageMargin = false;
-                
+
                 if (modListView.SelectedItems.Count == 1)
                 {
                     var focusedItem = modListView.FocusedItem;
-                    
+
                     if (focusedItem.SubItems[STATUS_COLUMN].Text.Equals("Inactive"))
                     {
                         ToolStripMenuItem activationToolStripMenuItem = new ToolStripMenuItem("Activate selected item");
@@ -451,7 +453,7 @@ namespace ModControl
                 else if (modListView.SelectedItems.Count > 1)
                 {
                     var selectedItems = modListView.SelectedItems;
-                    
+
                     ToolStripMenuItem activationToolStripMenuItem = new ToolStripMenuItem("Activate selected mods");
                     activationToolStripMenuItem.Click += new EventHandler(ActivateSelectedToolStripMenuItem_ItemClicked);
                     modListContextMenuStrip.Items.Add(activationToolStripMenuItem);
@@ -492,7 +494,7 @@ namespace ModControl
             }
         }
 
-        private void GetModPreview (Mod mod)
+        private void GetModPreview(Mod mod)
         {
             using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);
             string iconPath = mod.GetModIcon();
@@ -706,7 +708,7 @@ namespace ModControl
                 // Saves the Image in the appropriate ImageFormat based upon the
                 // File type selected in the dialog box.
                 // NOTE that the FilterIndex property is one-based.
-                foreach(Mod mod in modsList)
+                foreach (Mod mod in modsList)
                 {
                     if (mod.GetModStatus().Equals(ModStatus.Active))
                     {
@@ -727,26 +729,57 @@ namespace ModControl
             openFileDialog.Multiselect = true;
             openFileDialog.ShowDialog();
 
+            ReloadListView();
             foreach (String file in openFileDialog.FileNames)
             {
                 using (StreamReader packageFile = new(Path.Combine(activeModDirectory, file)))
                 {
-                    ReloadListView();
+                    
                     string line;
                     while ((line = packageFile.ReadLine()) != null)
                     {
-                        foreach (ListViewItem item in this.modListView.Items)
+                        ListViewItem mod = this.modListView.FindItemWithText(line + ".deactivated");
+                        if (mod != null)
                         {
-                            if (item.SubItems[FILE_NAME_COLUMN].Text.Equals(line + ".deactivated"))
-                                ActivateMod(item);
+                            ActivateMod(mod);
                         }
                     }
                 }
-                    
+
+            }
+        }
+
+        private void LoadPackageFromSaveToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Savegame XML |careerSavegame.xml";
+            openFileDialog.Title = "Load Mods from Save";
+            openFileDialog.InitialDirectory = fs19Directory;
+            openFileDialog.Multiselect = false;
+            openFileDialog.ShowDialog();
+
+            using StreamReader reader = new StreamReader(openFileDialog.OpenFile());
+            try
+            {
+                XDocument saveXml = XDocument.Load(reader);
+                List<XAttribute> savegameMods = saveXml.Element("careerSavegame").Elements("mod").Attributes("modName").ToList();
+
+                ReloadListView();
+                foreach (XAttribute savegameMod in savegameMods)
+                {
+                    ListViewItem mod = this.modListView.FindItemWithText(savegameMod.Value + ".zip.deactivated");
+                    if (mod != null)
+                    {
+                        ActivateMod(mod);
+                    }
+                }
+            }
+            catch
+            {
+                // don't need to handle this, likely mallformed XML, just skip category checker.
             }
         }
     }
-
     enum ModStatus
     {
         Unknown = -1,

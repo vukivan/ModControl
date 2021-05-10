@@ -26,7 +26,8 @@ namespace ModControl
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem packageToolStripMenuItem;
         private ToolStripMenuItem savePackageToolStripMenuItem;
-        private ToolStripMenuItem loadPackageToolStropMenuItem;
+        private ToolStripMenuItem loadPackageToolStripMenuItem;
+        private ToolStripMenuItem loadFromSaveToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
         private SplitContainer splitContainer;
@@ -44,6 +45,7 @@ namespace ModControl
         private readonly Keys KEY_DESELECT_ALL = ((Keys)((Keys.Control | Keys.Shift | Keys.A)));
         private readonly Keys KEY_SAVE_PACKAGE = ((Keys)((Keys.Control | Keys.S)));
         private readonly Keys KEY_LOAD_PACKAGE = ((Keys)((Keys.Control | Keys.P)));
+        private readonly Keys KEY_LOAD_FROM_SAVE = ((Keys)((Keys.Control | Keys.Shift | Keys.P)));
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -79,7 +81,8 @@ namespace ModControl
             this.deselectAllToolStripMenuItem = new ToolStripMenuItem();
             this.exitToolStripMenuItem = new ToolStripMenuItem();
             this.savePackageToolStripMenuItem = new ToolStripMenuItem();
-            this.loadPackageToolStropMenuItem = new ToolStripMenuItem();
+            this.loadPackageToolStripMenuItem = new ToolStripMenuItem();
+            this.loadFromSaveToolStripMenuItem = new ToolStripMenuItem();
             this.helpToolStripMenuItem = new ToolStripMenuItem();
             this.aboutToolStripMenuItem = new ToolStripMenuItem();
             this.toolStripSeparator1 = new ToolStripSeparator();
@@ -133,7 +136,8 @@ namespace ModControl
             //
             this.packageToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.savePackageToolStripMenuItem,
-            this.loadPackageToolStropMenuItem});
+            this.loadPackageToolStripMenuItem,
+            this.loadFromSaveToolStripMenuItem});
             this.packageToolStripMenuItem.Name = "packageToolStripMenuItem";
             this.packageToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.packageToolStripMenuItem.Text = "&Package";
@@ -235,12 +239,21 @@ namespace ModControl
             // 
             // loadPackageToolStropMenuItem
             // 
-            this.loadPackageToolStropMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.loadPackageToolStropMenuItem.Name = "loadPackageToolStropMenuItem";
-            this.loadPackageToolStropMenuItem.ShortcutKeys = KEY_LOAD_PACKAGE;
-            this.loadPackageToolStropMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.loadPackageToolStropMenuItem.Text = "&Load package";
-            this.loadPackageToolStropMenuItem.Click += new System.EventHandler(this.LoadPackageToolStripMenuItem_ItemClicked);
+            this.loadPackageToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.loadPackageToolStripMenuItem.Name = "loadPackageToolStropMenuItem";
+            this.loadPackageToolStripMenuItem.ShortcutKeys = KEY_LOAD_PACKAGE;
+            this.loadPackageToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.loadPackageToolStripMenuItem.Text = "&Load package";
+            this.loadPackageToolStripMenuItem.Click += new System.EventHandler(this.LoadPackageToolStripMenuItem_ItemClicked);
+            // 
+            // loadFromSaveToolStripMenuItem
+            // 
+            this.loadFromSaveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.loadFromSaveToolStripMenuItem.Name = "loadPackageToolStropMenuItem";
+            this.loadFromSaveToolStripMenuItem.ShortcutKeys = KEY_LOAD_FROM_SAVE;
+            this.loadFromSaveToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.loadFromSaveToolStripMenuItem.Text = "&Load package from save";
+            this.loadFromSaveToolStripMenuItem.Click += new System.EventHandler(this.LoadPackageFromSaveToolStripMenuItem_ItemClicked);
             // 
             // helpToolStripMenuItem
             // 
