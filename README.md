@@ -27,7 +27,11 @@ See [wiki](https://github.com/vukivan/ModControl/wiki)
 
 Yes, licences and third party SW. Mod control uses [pfim](https://github.com/nickbabcock/Pfim) to generate mod previews.
 Pfim is included in the release files, though dll is not present in the repository.
-Both pfim and ModControl use MIT license.
+Both pfim and ModControl use MIT license which is included in the repo.
+
+## Disclaimer
+
+This software is offered as is. The author takes no responsibility for harm done in using this software, or parts of this software. Author makes no guarantee of support or update of this software. Author does not take any responsibility for results of modified versions of this software, or modified parts of this software. This software can only be distributed from ModControl GitHub repository.
 
 ## Donate
 
