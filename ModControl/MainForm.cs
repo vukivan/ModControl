@@ -16,7 +16,9 @@ namespace ModControl
     public partial class MainForm : Form
     {
         private static readonly string fs19Directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2019\");
-        private static readonly string defaultModDirectory = Path.Combine(fs19Directory, @"mods\");
+        private static readonly string fs22Directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\FarmingSimulator2022\");
+        private static readonly string fs19ModDirectory = Path.Combine(fs19Directory, @"mods\");
+        private static readonly string fs22ModDirectory = Path.Combine(fs22Directory, @"mods\");
         private static string activeModDirectory;
         private static LinkedList<Mod> modsList = new LinkedList<Mod>();
         private static GCHandle handle;
@@ -35,18 +37,18 @@ namespace ModControl
 
         private void LoadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
-            activeModDirectory = defaultModDirectory;
-            if (Directory.Exists(activeModDirectory) && LoadMods() > 0)
+            activeModDirectory = GetModDirectory();
+            if (Directory.Exists(GetModDirectory()) && LoadMods() > 0)
             {
                 EnableMenus();
             }
             else
             {
                 MessageBoxButtons buttons = MessageBoxButtons.OKCancel;
-                DialogResult result = MessageBox.Show("Mods directory does not exist, ModControl will create " + activeModDirectory, "Mods directory missing", buttons);
+                DialogResult result = MessageBox.Show("Mods directory does not exist, ModControl will create " + GetModDirectory(), "Mods directory missing", buttons);
                 if (result == DialogResult.OK)
                 {
-                    Directory.CreateDirectory(activeModDirectory);
+                    Directory.CreateDirectory(GetModDirectory());
                 }
             }
 
@@ -82,6 +84,7 @@ namespace ModControl
 
         private void ReloadToolStripMenuItem_ItemClicked(object sender, EventArgs e)
         {
+            activeModDirectory = GetModDirectory();
             if (LoadMods() > 0)
             {
                 EnableMenus();
@@ -147,7 +150,7 @@ namespace ModControl
 
         private void AddModListViewItem(Mod mod)
         {
-            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetSize(), mod.GetFileName(), mod.GetCategories() });
+            ListViewItem item = new(new[] { mod.GetModTitle(), mod.GetModAuthor(), mod.GetModVersion(), mod.GetModStatusString(), mod.GetSize(), mod.GetFileName() });
             item.ToolTipText = mod.GetFileName() + "\n" + mod.GetCategories();
             this.modListView.Items.Add(item);
             this.backupModList.Add((ListViewItem)item.Clone());
@@ -224,6 +227,24 @@ namespace ModControl
                 MessageBox.Show("No items selected!");
             }
 
+        }
+
+        private void SwitchGameFS19ToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            if (!this.fs19ToolStripMenuItem.Checked)
+            {
+                this.fs22ToolStripMenuItem.Checked = false;
+                this.fs19ToolStripMenuItem.Checked = true;
+            }
+        }
+
+        private void SwitchGameFS22ToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            if (!this.fs22ToolStripMenuItem.Checked)
+            {
+                this.fs19ToolStripMenuItem.Checked = false;
+                this.fs22ToolStripMenuItem.Checked = true;
+            }
         }
 
         private static Mod FindModByFileName(string name)
@@ -372,13 +393,14 @@ namespace ModControl
                                 {
                                     XDocument storeItemXml = XDocument.Load(storeItemReader);
                                     string newCat;
-                                    if (storeItemXml.Element("vehicle") != null)
+                                    if (storeItemXml.Element("vehicle") != null && storeItemXml.Element("vehicle").Element("storeData") != null)
                                         newCat = storeItemXml.Element("vehicle").Element("storeData").Element("category").Value;
-                                    else if (storeItemXml.Element("placeable") != null)
+                                    else if (storeItemXml.Element("placeable") != null && storeItemXml.Element("placeable").Element("storeData") != null)
                                         newCat = storeItemXml.Element("placeable").Element("storeData").Element("category").Value;
-                                    else
+                                    else if (storeItemXml.Element("handTool") != null && storeItemXml.Element("handTool").Element("storeData") != null)
                                         newCat = storeItemXml.Element("handTool").Element("storeData").Element("category").Value;
-
+                                    else
+                                        newCat = "";
                                     if (!categories.Contains(newCat))
                                     {
                                         categories += newCat + " ";
@@ -657,12 +679,12 @@ namespace ModControl
             {
                 this.modListView.BeginUpdate();
                 ReloadListView();
-                for (int i = this.modListView.Items.Count - 1; i >= 0; i--)
+//                for (int i = this.modListView.Items.Count - 1; i >= 0; i--)
+                foreach(ListViewItem item in this.modListView.Items)
                 {
-                    ListViewItem currentItem = this.modListView.Items[i];
-                    if (!this.ItemMatches(currentItem, searchBox.Text))
+                    if (!this.ItemMatches(item, searchBox.Text))
                     {
-                        this.modListView.Items.RemoveAt(i);
+                        this.modListView.Items.RemoveAt(item.Index);
                     }
                 }
                 this.modListView.EndUpdate();
@@ -671,25 +693,14 @@ namespace ModControl
 
         private bool ItemMatches(ListViewItem item, string text)
         {
-            bool matches = false;
+            Mod mod = FindModByFileName(item.SubItems[FILE_NAME_COLUMN].Text);
 
-            matches |= item.Text.ToLower().Contains(text.ToLower());
+            return mod.GetFileName().ToString().ToLower().Contains(text.ToLower()) |
+                mod.GetModAuthor().ToString().ToLower().Contains(text.ToLower()) |
+                mod.GetModTitle().ToString().ToLower().Contains(text.ToLower()) |
+                mod.GetCategories().ToString().ToLower().Contains(text.ToLower()) |
+                mod.GetModDesc().ToString().ToLower().Contains(text.ToLower());
 
-            if (matches)
-            {
-                return true;
-            }
-
-            foreach (ListViewItem.ListViewSubItem subitem in item.SubItems)
-            {
-                matches |= subitem.Text.ToLower().Contains(text.ToLower());
-                if (matches)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
 
@@ -754,7 +765,7 @@ namespace ModControl
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Savegame XML |careerSavegame.xml";
             openFileDialog.Title = "Load Mods from Save";
-            openFileDialog.InitialDirectory = fs19Directory;
+            openFileDialog.InitialDirectory = GetGameDirectory();
             openFileDialog.Multiselect = false;
             openFileDialog.ShowDialog();
 
@@ -777,6 +788,30 @@ namespace ModControl
             catch
             {
                 // don't need to handle this, likely mallformed XML, just skip category checker.
+            }
+        }
+
+        private string GetGameDirectory()
+        {
+            if (this.fs19ToolStripMenuItem.Checked)
+            {
+                return fs19Directory;
+            }
+            else
+            {
+                return fs22Directory;
+            }
+        }
+
+        private string GetModDirectory()
+        {
+            if (this.fs19ToolStripMenuItem.Checked)
+            {
+                return fs19ModDirectory;
+            }
+            else
+            {
+                return fs22ModDirectory;
             }
         }
     }

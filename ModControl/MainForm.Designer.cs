@@ -30,6 +30,9 @@ namespace ModControl
         private ToolStripMenuItem loadFromSaveToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
+        private ToolStripMenuItem gameToolStripMenuItem;
+        private ToolStripMenuItem fs19ToolStripMenuItem;
+        private ToolStripMenuItem fs22ToolStripMenuItem;
         private SplitContainer splitContainer;
         private SplitContainer rightSplitContainer;
         private TextBox searchBox;
@@ -85,6 +88,9 @@ namespace ModControl
             this.loadFromSaveToolStripMenuItem = new ToolStripMenuItem();
             this.helpToolStripMenuItem = new ToolStripMenuItem();
             this.aboutToolStripMenuItem = new ToolStripMenuItem();
+            this.gameToolStripMenuItem = new ToolStripMenuItem();
+            this.fs19ToolStripMenuItem = new ToolStripMenuItem();
+            this.fs22ToolStripMenuItem = new ToolStripMenuItem();
             this.toolStripSeparator1 = new ToolStripSeparator();
             this.toolStripSeparator2 = new ToolStripSeparator();
             this.toolStripSeparator3 = new ToolStripSeparator();
@@ -106,6 +112,7 @@ namespace ModControl
             this.mainMenu.Items.AddRange(new ToolStripItem[] {
             this.modToolStripMenuItem,
             this.packageToolStripMenuItem,
+            this.gameToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
@@ -257,6 +264,35 @@ namespace ModControl
             // 
             // helpToolStripMenuItem
             // 
+            this.gameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+            this.fs19ToolStripMenuItem,
+            this.fs22ToolStripMenuItem});
+            this.gameToolStripMenuItem.Name = "gameToolStripMenuItem";
+            this.gameToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.gameToolStripMenuItem.Text = "&Game";
+            //
+            // fs19ToolStripMenuItem
+            //
+            this.fs19ToolStripMenuItem.Name = "fs19ToolStripMenuItem";
+            this.fs19ToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.fs19ToolStripMenuItem.Text = "&FS19";
+            //this.fs19ToolStripMenuItem.CheckOnClick = true;
+            this.fs19ToolStripMenuItem.Checked = false;
+            this.fs19ToolStripMenuItem.Click += new System.EventHandler(this.SwitchGameFS19ToolStripMenuItem_ItemClicked);
+            this.fs19ToolStripMenuItem.ToolTipText = "Select game for default mod directory, custom mod directory is not affected by this.";
+            //
+            // fs22ToolStripMenuItem
+            //
+            this.fs22ToolStripMenuItem.Name = "fs22ToolStripMenuItem";
+            this.fs22ToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.fs22ToolStripMenuItem.Text = "&FS22";
+            //this.fs22ToolStripMenuItem.CheckOnClick = true;
+            this.fs22ToolStripMenuItem.Checked = true;
+            this.fs22ToolStripMenuItem.Click += new System.EventHandler(this.SwitchGameFS22ToolStripMenuItem_ItemClicked);
+            this.fs22ToolStripMenuItem.ToolTipText = "Select game for default mod directory, custom mod directory is not affected by this.";
+            // 
+            // helpToolStripMenuItem
+            // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
@@ -329,7 +365,7 @@ namespace ModControl
             //
             // SearchBox
             //
-            this.searchBox.Location = new Point(175, 0);
+            this.searchBox.Location = new Point(225, 0);
             this.searchBox.KeyUp += new KeyEventHandler(Txt_Search_KeyUp);
             this.searchBox.Width = 300;
             this.searchBox.PlaceholderText = "Type to search...";
