@@ -103,13 +103,13 @@ namespace ModControl
         private int LoadMods()
         {
             int modCount = 0;
+            modListView.BeginUpdate();
             this.modListView.Items.Clear();
             this.backupModList.Clear();
             modsList.Clear();
             DirectoryInfo directoryInfo = new(activeModDirectory);
             FileInfo[] activatedModFiles = directoryInfo.GetFiles("*.zip");
             FileInfo[] deactivatedModFiles = directoryInfo.GetFiles("*.zip.deactivated");
-            modListView.BeginUpdate();
             foreach (FileInfo file in activatedModFiles)
             {
                 ModProperties properties = GetModInfo(file.Name);
