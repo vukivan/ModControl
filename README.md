@@ -6,6 +6,12 @@ It's desinged to avoid mod duplication and having multiple folders with same set
 Instead, you can have all your mods, active and inactive, in the same directory.
 Additionaly, you can create mod packages, which are essentially mod lists, that can be "bulk" activated at any moment.
 
+## Requirements
+
+-Windows 10
+-Farming Simulator 19 or 22
+-[.NET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) (if it's not installed, exe will ask you to install it)
+
 ## Isn't having all mods in one directory bad?
 
 Normally, yes. It is bad to have all mods in one directory. However...
