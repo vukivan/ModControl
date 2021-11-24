@@ -8,9 +8,9 @@ Additionaly, you can create mod packages, which are essentially mod lists, that 
 
 ## Requirements
 
--Windows 10
--Farming Simulator 19 or 22
--[.NET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) (if it's not installed, exe will ask you to install it)
+- Windows 10
+- Farming Simulator 19 or 22
+- [.NET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) (if it's not installed, exe will ask you to install it)
 
 ## Isn't having all mods in one directory bad?
 
