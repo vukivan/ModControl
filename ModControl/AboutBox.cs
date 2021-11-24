@@ -63,7 +63,12 @@ namespace ModControl
         {
             get
             {
-                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
+                if (attributes.Length == 0)
+                {
+                    return "";
+                }
+                return ((AssemblyInformationalVersionAttribute)attributes[0]).InformationalVersion;
             }
         }
 

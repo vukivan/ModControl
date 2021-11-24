@@ -6,7 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <Authors>Ivan Vuk</Authors>
     <Company></Company>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>AppSigningKey.pfx</AssemblyOriginatorKeyFile>
     <PackageProjectUrl>https://github.com/vukivan/ModControl/wiki</PackageProjectUrl>
@@ -15,6 +15,11 @@
 
 It's desinged to avoid mod duplication and having multiple folders with same sets of mods depending on your save game. Instead, you can have all your mods, active and inactive, in the same directory. Additionaly, you can create mod packages, which are essentially mod lists, that can be "bulk" activated at any moment.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Copyright>Ivan Vuk</Copyright>
+    <Version>1.0</Version>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
