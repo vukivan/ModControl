@@ -70,6 +70,12 @@ namespace ModControl
             }
         }
 
+        private void AboutToolStripMenuItem_ItemClicked(object sender, EventArgs e)
+        {
+            AboutBox box = new AboutBox();
+            box.ShowDialog();
+        }
+
         private void EnableMenus()
         {
             this.reloadToolStripMenuItem.Enabled = true;

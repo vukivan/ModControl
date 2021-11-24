@@ -5,7 +5,16 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <Authors>Ivan Vuk</Authors>
-    <Company>Ivan Vuk</Company>
+    <Company></Company>
+    <SignAssembly>false</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>AppSigningKey.pfx</AssemblyOriginatorKeyFile>
+    <PackageProjectUrl>https://github.com/vukivan/ModControl/wiki</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vukivan/ModControl/</RepositoryUrl>
+    <Description>ModControl is a simple mod manager for Farming Simulator 19/22.
+
+It's desinged to avoid mod duplication and having multiple folders with same sets of mods depending on your save game. Instead, you can have all your mods, active and inactive, in the same directory. Additionaly, you can create mod packages, which are essentially mod lists, that can be "bulk" activated at any moment.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,6 +25,13 @@
 
   <ItemGroup>
     <PackageReference Include="Pfim" Version="0.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
