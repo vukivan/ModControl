@@ -524,100 +524,110 @@ namespace ModControl
 
         private void GetModPreview(Mod mod)
         {
-            using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);
-            string iconPath = mod.GetModIcon();
-            ZipArchiveEntry iconEntry = archive.GetEntry(iconPath);
-            //sometimes path says png, but file is actually dds.
-            //game ALWAYS loads dds.
-            if (iconEntry == null && iconPath.Contains(".png"))
+            try
             {
-                iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".png")) + ".dds";
-                iconEntry = archive.GetEntry(iconPath);
-            }
-            //this scenario should not happen, but I'm leaving this here since Giants engine might have fallback for png files
-            if (iconEntry == null && iconPath.Contains(".dds"))
-            {
-                iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".dds")) + ".png";
-                iconEntry = archive.GetEntry(iconPath);
-            }
-            if (iconEntry != null)
-            {
-                StreamReader iconReader = new StreamReader(iconEntry.Open());
-                if (iconPath.Contains(".dds"))
+                using ZipArchive archive = ZipFile.Open(activeModDirectory + "/" + mod.GetFileName(), ZipArchiveMode.Read);
+                string iconPath = mod.GetModIcon();
+                ZipArchiveEntry iconEntry = archive.GetEntry(iconPath);
+                //sometimes path says png, but file is actually dds.
+                //game ALWAYS loads dds.
+                if (iconEntry == null && iconPath.Contains(".png"))
                 {
-                    using (var image = Pfim.Pfim.FromStream(iconReader.BaseStream))
+                    iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".png")) + ".dds";
+                    iconEntry = archive.GetEntry(iconPath);
+                }
+                //this scenario should not happen, but I'm leaving this here since Giants engine might have fallback for png files
+                if (iconEntry == null && iconPath.Contains(".dds"))
+                {
+                    iconPath = iconPath.Substring(0, iconPath.LastIndexOf(".dds")) + ".png";
+                    iconEntry = archive.GetEntry(iconPath);
+                }
+                if (iconEntry != null)
+                {
+                    StreamReader iconReader = new StreamReader(iconEntry.Open());
+                    if (iconPath.Contains(".dds"))
                     {
-                        PixelFormat format = PixelFormat.Undefined;
-
-                        switch (image.Format)
+                        using (var image = Pfim.Pfim.FromStream(iconReader.BaseStream))
                         {
-                            case Pfim.ImageFormat.Rgb24:
-                                format = PixelFormat.Format24bppRgb;
-                                break;
+                            PixelFormat format = PixelFormat.Undefined;
 
-                            case Pfim.ImageFormat.Rgba32:
-                                format = PixelFormat.Format32bppArgb;
-                                break;
-
-                            case Pfim.ImageFormat.R5g5b5:
-                                format = PixelFormat.Format16bppRgb555;
-                                break;
-
-                            case Pfim.ImageFormat.R5g6b5:
-                                format = PixelFormat.Format16bppRgb565;
-                                break;
-
-                            case Pfim.ImageFormat.R5g5b5a1:
-                                format = PixelFormat.Format16bppArgb1555;
-                                break;
-
-                            case Pfim.ImageFormat.Rgb8:
-                                format = PixelFormat.Format8bppIndexed;
-                                break;
-                            default:
-                                var msg = $"{image.Format} is not recognized for Bitmap on Windows Forms. " +
-                       "You'd need to write a conversion function to convert the data to known format";
-                                var caption = "Unrecognized format";
-                                MessageBox.Show(msg, caption, MessageBoxButtons.OK);
-                                break;
-                        }
-                        if (format != PixelFormat.Undefined)
-                        {
-                            //Prevents serious memory leak. DO. NOT. REMOVE.
-                            if (handle.IsAllocated)
+                            switch (image.Format)
                             {
-                                handle.Free();
+                                case Pfim.ImageFormat.Rgb24:
+                                    format = PixelFormat.Format24bppRgb;
+                                    break;
+
+                                case Pfim.ImageFormat.Rgba32:
+                                    format = PixelFormat.Format32bppArgb;
+                                    break;
+
+                                case Pfim.ImageFormat.R5g5b5:
+                                    format = PixelFormat.Format16bppRgb555;
+                                    break;
+
+                                case Pfim.ImageFormat.R5g6b5:
+                                    format = PixelFormat.Format16bppRgb565;
+                                    break;
+
+                                case Pfim.ImageFormat.R5g5b5a1:
+                                    format = PixelFormat.Format16bppArgb1555;
+                                    break;
+
+                                case Pfim.ImageFormat.Rgb8:
+                                    format = PixelFormat.Format8bppIndexed;
+                                    break;
+                                default:
+                                    var msg = $"{image.Format} is not recognized for Bitmap on Windows Forms. " +
+                           "You'd need to write a conversion function to convert the data to known format";
+                                    var caption = "Unrecognized format";
+                                    MessageBox.Show(msg, caption, MessageBoxButtons.OK);
+                                    break;
                             }
-                            handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
-                            var ptr = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
-                            var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, ptr);
-
-                            // While frameworks like WPF and ImageSharp natively understand 8bit gray values.
-                            // WinForms can only work with an 8bit palette that we construct of gray values.
-                            if (format == PixelFormat.Format8bppIndexed)
+                            if (format != PixelFormat.Undefined)
                             {
-                                var palette = bitmap.Palette;
-                                for (int i = 0; i < 256; i++)
+                                //Prevents serious memory leak. DO. NOT. REMOVE.
+                                if (handle.IsAllocated)
                                 {
-                                    palette.Entries[i] = Color.FromArgb((byte)i, (byte)i, (byte)i);
+                                    handle.Free();
                                 }
-                                bitmap.Palette = palette;
+                                handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned);
+                                var ptr = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+                                var bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, ptr);
+
+                                // While frameworks like WPF and ImageSharp natively understand 8bit gray values.
+                                // WinForms can only work with an 8bit palette that we construct of gray values.
+                                if (format == PixelFormat.Format8bppIndexed)
+                                {
+                                    var palette = bitmap.Palette;
+                                    for (int i = 0; i < 256; i++)
+                                    {
+                                        palette.Entries[i] = Color.FromArgb((byte)i, (byte)i, (byte)i);
+                                    }
+                                    bitmap.Palette = palette;
+                                }
+
+                                this.pictureBox.Image = bitmap;
                             }
 
-                            this.pictureBox.Image = bitmap;
                         }
-
+                    }
+                    else
+                    {
+                        this.pictureBox.Image = new Bitmap(iconReader.BaseStream);
                     }
                 }
                 else
                 {
-                    this.pictureBox.Image = new Bitmap(iconReader.BaseStream);
+                    this.pictureBox.Image = null;
                 }
             }
-            else
+            catch (Exception e)
             {
-                this.pictureBox.Image = null;
+                MessageBox.Show(e.Message, "Error");
+                return;
             }
+            
+            
         }
 
 
